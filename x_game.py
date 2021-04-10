@@ -1,6 +1,28 @@
+import datetime
 from abc import abstractmethod
 import pygame
 import logging
+
+class XGameInput(object):
+    def __init__(self):
+        self.keys_pressed=set()
+
+    def key_down(self, event):
+        if event.type != pygame.KEYDOWN:
+            raise Exception()
+        self.keys_pressed.add(event.key)
+
+    def key_up(self, event):
+        if event.type != pygame.KEYUP:
+            raise Exception()
+        self.keys_pressed.remove(event.key)
+
+
+class XGameState:
+    screen = None
+
+    def __init__(self, game):
+        self.game = game
 
 
 class XGame(object):
@@ -27,6 +49,8 @@ class XGame(object):
 
         self.screen = XGame.init_screen(*screen_size)
         self.clock = pygame.time.Clock()
+        self.input = XGameInput()
+        self.state = XGameState(self)
 
         self.renderer = None
         self.running = False
@@ -41,12 +65,21 @@ class XGame(object):
         pass
 
     def handle_input_event(self, event):
-        pass
+        if event.type == pygame.QUIT:
+            self.exit_status = 0
+            self.running = False
+
+        if event.type == pygame.KEYUP:
+            self.input.key_up(event)
+
+        if event.type == pygame.KEYDOWN:
+            self.input.key_down(event)
 
     def handle_input(self):
         try:
-            event = pygame.event.wait()
-            self.handle_input_event(event)
+            events = pygame.event.get()
+            for event in events:
+                self.handle_input_event(event)
         except KeyboardInterrupt:
             self.exit_status = 0
             self.running = False

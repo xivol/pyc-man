@@ -40,18 +40,15 @@ class TiledRenderer(object):
             if isinstance(layer, TiledTileLayer):
                 self.render_tile_layer(surface, layer)
 
-            elif isinstance(layer, TiledObjectGroup):
-                self.render_object_layer(surface, layer)
-
-            elif isinstance(layer, TiledImageLayer):
-                self.render_image_layer(surface, layer)
+            # elif isinstance(layer, TiledObjectGroup):
+            #     self.render_object_layer(surface, layer)
+            #
+            # elif isinstance(layer, TiledImageLayer):
+            #     self.render_image_layer(surface, layer)
 
     def render_tile_layer(self, surface, layer):
         """ Render all TiledTiles in this layer
         """
-
-        if not int(layer.visible):
-            return
 
         # deref these heavily used references for speed
         tw = self.tmx_data.tilewidth
@@ -92,8 +89,8 @@ class TiledRenderer(object):
                 draw_lines(surface, rect_color, obj.closed, obj.apply_transformations(), 3)
 
     def render_image_layer(self, surface, layer):
-        if not int(layer.visible):
-            return
+
+        print(type(layer.visible), layer.visible)
 
         if layer.image:
             surface.blit(layer.image, (int(layer.offsetx), int(layer.offsety)))

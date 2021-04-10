@@ -1,4 +1,6 @@
 import logging
+from pprint import pprint
+
 import pygame
 from pygame.locals import *
 import pytmx
@@ -12,8 +14,12 @@ class SimpleTest(XGame):
 
     def __init__(self, filename):
         super().__init__('PyTMX Map Viewer', (600,800))
+
+        tsx = pytmx.load_pygame(filename, load_all=True)
+        pprint(vars(tsx))
+
         self.logger.info("Testing %s", filename)
-        self.logger.info(pytmx.__version__)
+
         self.load_map(filename)
 
 

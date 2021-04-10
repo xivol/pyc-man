@@ -1,25 +1,20 @@
-import logging
-
-import pygame
-
-from simple_test import SimpleTest
 
 
 
 
 if __name__ == '__main__':
     import os.path
-    import glob
+    import logging
+    from pyc_man.game import PycManGame
+    import pygame
 
     logging.basicConfig(level=logging.DEBUG)
 
-    # loop through a bunch of maps in the maps folder
     try:
-        for filename in glob.glob(os.path.join('data', '*.tmx')):
-            test = SimpleTest(filename)
-
-            if not test.run():
-                break
+        PycManGame((600, 800),
+                   os.path.join('data', 'level_01.tmx'),
+                   os.path.join('data', 'sprites.tmx'))\
+            .run()
     except:
         pygame.quit()
         raise
