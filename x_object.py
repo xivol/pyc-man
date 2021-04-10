@@ -1,12 +1,23 @@
 import pygame
-from pygame.rect import Rect
+
+
+class SpawnableMixin:
+    __spawnpoint__ = None
+
+    @classmethod
+    def spawnpoint(cls):
+        return cls.__spawnpoint__
 
 
 class XObject(pygame.sprite.Sprite):
+    __sprite_name__ = None
+
+    @classmethod
+    def sprite_name(cls):
+        return cls.__sprite_name__
+
     @staticmethod
     def collided(subject, target):
-        if subject.get_hit_box().colliderect(target.get_hit_box()):
-            print(subject.get_hit_box(), target.get_hit_box())
         return subject.get_hit_box().colliderect(target.get_hit_box())
 
     def __init__(self, image, rect, position=None, *groups):
@@ -19,3 +30,6 @@ class XObject(pygame.sprite.Sprite):
 
     def get_hit_box(self):
         return self.rect
+
+    def get_hit(self, colliders):
+        return pygame.sprite.spritecollideany(self, colliders, XObject.collided)

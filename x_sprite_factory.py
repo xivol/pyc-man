@@ -63,7 +63,7 @@ class XSpriteFactory:
     def __getitem__(self, item):
         return self.sprites[item]
 
-    def __setitem__(self, key, value):
+    def add(self, key, **value):
         if key in self.sprites:
             raise Exception()
 

@@ -1,11 +1,11 @@
 from abc import ABC
-
 import pygame
-
-import x_subject
 import enum
 
-from pyc_man.objects import Wall
+import x_subject
+import x_object
+from pyc_man.game_state.basic import BasicState
+from pyc_man.objects import Wall, Gate
 
 
 class Direction(enum.Enum):
@@ -14,7 +14,10 @@ class Direction(enum.Enum):
     DOWN = 2
     LEFT = 3
 
-    def move(self, point, delta):
+    def move(self, delta):
+        return self.move_point((0,0), delta)
+
+    def move_point(self, point, delta):
         if self == Direction.UP:
             return (point[0], point[1] - delta)
         if self == Direction.RIGHT:
@@ -25,7 +28,7 @@ class Direction(enum.Enum):
             return (point[0]-delta, point[1])
 
 
-class Actor(x_subject.XSubject, ABC):
+class Actor(x_subject.XSubject, x_object.SpawnableMixin, ABC):
     __speed__ = 0
 
     def __init__(self, *params):
@@ -37,10 +40,22 @@ class Actor(x_subject.XSubject, ABC):
 
     def set_direction(self, direction):
         if self.direction != direction:
+            self.makes_turn = True
             self.direction = direction
+        else:
+            self.makes_turn = False
+
+    def can_pass(self, object):
+        return not isinstance(object, Wall)
+
+    def get_hit_box(self):
+        hit_box = pygame.Rect(0, 0, self.rect.width//2, self.rect.height//2)
+        hit_box.center = self.rect.center
+        return hit_box
 
 
 class PacMan(Actor):
+    __spawnpoint__ = 'pacman'
     __max_lives__ = 5
     __speed__ = 0.2
 
@@ -55,26 +70,31 @@ class PacMan(Actor):
 
         if input.direction:
             self.set_direction(input.direction)
-            if not game_state.game.has_wall(self.rect.center, self.direction):
+            if game_state.game.level.can_pass(self, self.direction.move(self.speed * time)):
                 self.make_a_move(self.speed * time, game_state.screen.get_size())
 
-        if input.impact:
-            print(input.impact)
+        impact = self.get_hit(game_state.game.level.collider_sprites)
+        if impact and isinstance(game_state, BasicState):
+            game_state.on_did_consume(self, impact)
 
-    def get_hit_box(self):
-        hit_box = pygame.Rect(0, 0, self.rect.width//2, self.rect.height//2)
-        hit_box.center = self.rect.center
-        return hit_box
+    def can_pass(self, object):
+        return not (isinstance(object, Wall) or isinstance(object, Gate))
 
     def make_a_move(self, move_dist, screen):
         width, height = screen
-        x, y = center = self.direction.move(self.rect.center, move_dist)
+        x, y = center = self.direction.move_point(self.rect.center, move_dist)
         if not 0 < x < width:
             center = ((x + width) % width, y)
         self.rect.center = center
 
-    def dies(self):
+    def die(self):
         self.lives -= 1
         self.is_alive = False
+
+
+class Ghost(Actor):
+    __spawnpoint__ = 'ghost'
+    __speed__ = 0.2
+
 
 

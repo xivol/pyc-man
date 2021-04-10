@@ -1,3 +1,4 @@
+import pygame
 import x_object
 
 
@@ -5,16 +6,14 @@ class Wall(x_object.XObject):
     pass
 
 
-class Bonus(x_object.XObject):
-    __sprite_name__ = None
+class Gate(x_object.XObject):
+    pass
 
+
+class Bonus(x_object.XObject):
     def __init__(self, points, *params):
         super().__init__(*params)
         self.points = points
-
-    @classmethod
-    def sprite_name(cls):
-        return cls.__sprite_name__
 
 
 class Pellet(Bonus):
@@ -23,6 +22,11 @@ class Pellet(Bonus):
     def __init__(self, *params):
         super().__init__(10, *params)
 
+    def get_hit_box(self):
+        hit_box = pygame.Rect(0, 0, self.rect.width//4, self.rect.height//4)
+        hit_box.center = self.rect.center
+        return hit_box
+
 
 class Energizer(Bonus):
     __sprite_name__ = 'energizer'
@@ -30,10 +34,16 @@ class Energizer(Bonus):
     def __init__(self, *params):
         super().__init__(50, *params)
 
+    def get_hit_box(self):
+        hit_box = pygame.Rect(0, 0, self.rect.width//2, self.rect.height//2)
+        hit_box.center = self.rect.center
+        return hit_box
 
-class Fruits(Bonus):
+
+class Fruits(Bonus, x_object.SpawnableMixin):
     __points__ = [100, 300, 500, 700, 1000, 2000, 3000, 5000]
     __sprite_name__ = 'fruit'
+    __spawnpoint__ = 'fruit'
 
     def __init__(self, *params, **kwargs):
         i = kwargs.get('order', 0)

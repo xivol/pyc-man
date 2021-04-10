@@ -1,7 +1,4 @@
 
-
-
-
 if __name__ == '__main__':
     import os.path
     import logging
@@ -13,7 +10,8 @@ if __name__ == '__main__':
     try:
         PycManGame((600, 800),
                    os.path.join('data', 'level_01.tmx'),
-                   os.path.join('data', 'sprites.tmx'))\
+                   os.path.join('data', 'sprites.tmx'),
+                   os.path.join('data', 'font.tmx'))\
             .run()
     except:
         pygame.quit()

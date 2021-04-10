@@ -23,6 +23,12 @@ class XGameState:
 
     def __init__(self, game):
         self.game = game
+        self.input = XGameInput()
+
+    def handle_input_event(self, event):
+        if event.type == pygame.QUIT:
+            self.game.exit_status = 0
+            self.game.running = False
 
 
 class XGame(object):
@@ -39,18 +45,19 @@ class XGame(object):
         else:
             cls.logger = logger
 
-    def __init__(self, title, screen_size, logger=None):
+    def __init__(self, title, screen_size, initial_state=None, logger=None):
         if 'logger' not in self.__class__.__dict__:
             self.__class__.logger_setup(logger)
 
         pygame.init()
         pygame.font.init()
         pygame.display.set_caption(title)
-
         self.screen = XGame.init_screen(*screen_size)
         self.clock = pygame.time.Clock()
-        self.input = XGameInput()
-        self.state = XGameState(self)
+        if initial_state:
+            self.state = initial_state(self)
+        else:
+            self.state = XGameState(self)
 
         self.renderer = None
         self.running = False
@@ -64,22 +71,11 @@ class XGame(object):
     def update(self, timedelta):
         pass
 
-    def handle_input_event(self, event):
-        if event.type == pygame.QUIT:
-            self.exit_status = 0
-            self.running = False
-
-        if event.type == pygame.KEYUP:
-            self.input.key_up(event)
-
-        if event.type == pygame.KEYDOWN:
-            self.input.key_down(event)
-
     def handle_input(self):
         try:
             events = pygame.event.get()
             for event in events:
-                self.handle_input_event(event)
+                self.state.handle_input_event(event)
         except KeyboardInterrupt:
             self.exit_status = 0
             self.running = False
