@@ -3,33 +3,6 @@ from abc import abstractmethod
 import pygame
 import logging
 
-class XGameInput(object):
-    def __init__(self):
-        self.keys_pressed=set()
-
-    def key_down(self, event):
-        if event.type != pygame.KEYDOWN:
-            raise Exception()
-        self.keys_pressed.add(event.key)
-
-    def key_up(self, event):
-        if event.type != pygame.KEYUP:
-            raise Exception()
-        self.keys_pressed.remove(event.key)
-
-
-class XGameState:
-    screen = None
-
-    def __init__(self, game):
-        self.game = game
-        self.input = XGameInput()
-
-    def handle_input_event(self, event):
-        if event.type == pygame.QUIT:
-            self.game.exit_status = 0
-            self.game.running = False
-
 
 class XGame(object):
     __fps__ = 60
@@ -45,7 +18,7 @@ class XGame(object):
         else:
             cls.logger = logger
 
-    def __init__(self, title, screen_size, initial_state=None, logger=None):
+    def __init__(self, title, screen_size, logger=None):
         if 'logger' not in self.__class__.__dict__:
             self.__class__.logger_setup(logger)
 
@@ -54,36 +27,49 @@ class XGame(object):
         pygame.display.set_caption(title)
         self.screen = XGame.init_screen(*screen_size)
         self.clock = pygame.time.Clock()
-        if initial_state:
-            self.state = initial_state(self)
-        else:
-            self.state = XGameState(self)
 
-        self.renderer = None
         self.running = False
-        self.dirty = False
         self.exit_status = 0
 
-    @abstractmethod
-    def draw(self, surface):
-        pass
+        self.state_dict = {}
+        self.state_name = None
+        self.state = None
 
-    def update(self, timedelta):
-        pass
+    def setup_states(self, state_dict, initial_state):
+        self.state_dict = state_dict
+        self.state_name = initial_state
+        self.state = self.state_dict[self.state_name]
 
     def handle_input(self):
         try:
             events = pygame.event.get()
             for event in events:
+                if event.type == pygame.QUIT:
+                    self.exit_status = 0
+                    self.running = False
+
                 self.state.handle_input_event(event)
         except KeyboardInterrupt:
             self.exit_status = 0
             self.running = False
 
+    def flip_state(self):
+        previous, self.state_name = self.state_name, self.state.next
+        persist_values = self.state.teardown()
+        self.state = self.state_dict[self.state_name]
+        self.state.startup(**persist_values)
+        self.state.previous = previous
+
+    def update(self, deltatime):
+        if self.state.quit:
+            self.running = False
+            self.exit_status = 0
+
+        elif self.state.done:
+            self.flip_state()
+        self.state.update(deltatime)
+
     def run(self):
-        """ This is our app main loop
-        """
-        self.dirty = True
         self.running = True
         self.exit_status = 1
 
@@ -93,12 +79,9 @@ class XGame(object):
             timedelta = 1000 / self.__fps__
             self.update(timedelta)
 
-            # we don't want to constantly draw on the display, as that is way
-            # inefficient.  so, this 'dirty' values is used.  If dirty is True,
-            # then re-render the map, display it, then mark 'dirty' False.
-            if self.dirty:
-                self.draw(self.screen)
-                self.dirty = False
+            if self.state.dirty:
+                self.state.draw(self.screen)
+                self.state.dirty = False
                 pygame.display.flip()
 
             self.clock.tick(self.__fps__)

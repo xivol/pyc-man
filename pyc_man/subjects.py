@@ -8,26 +8,6 @@ from pyc_man.game_state.basic import BasicState
 from pyc_man.objects import Wall, Gate
 
 
-class Direction(enum.Enum):
-    UP = 0
-    RIGHT = 1
-    DOWN = 2
-    LEFT = 3
-
-    def move(self, delta):
-        return self.move_point((0,0), delta)
-
-    def move_point(self, point, delta):
-        if self == Direction.UP:
-            return (point[0], point[1] - delta)
-        if self == Direction.RIGHT:
-            return (point[0] + delta, point[1])
-        if self == Direction.DOWN:
-            return (point[0], point[1] + delta)
-        if self == Direction.LEFT:
-            return (point[0]-delta, point[1])
-
-
 class Actor(x_subject.XSubject, x_object.SpawnableMixin, ABC):
     __speed__ = 0
 
