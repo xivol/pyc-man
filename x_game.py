@@ -57,11 +57,11 @@ class XGame(object):
         previous, self.state_name = self.state_name, self.state.next
         persist_values = self.state.teardown()
         self.state = self.state_dict[self.state_name]
-        self.state.startup(**persist_values)
+        self.state.setup(**persist_values)
         self.state.previous = previous
 
     def update(self, deltatime):
-        if self.state.quit:
+        if self.state.final:
             self.running = False
             self.exit_status = 0
 

@@ -1,9 +1,5 @@
 import math
 
-from pyc_man.game_state import InitState
-from pyc_man.game_state import RunningState
-from x_game import XGame
-
 
 def dimensions(w, h):
     f = math.gcd(w, h)
@@ -14,11 +10,15 @@ def dimensions(w, h):
             h = 9 * w // 7
     return w, h
 
+
 if __name__ == '__main__':
     import os.path
     import logging
-    from pyc_man.game import PycManGame
     import pygame
+
+    from pyc_man.game_state import InitState
+    from pyc_man.game_state import RunningState
+    from x_game import XGame
 
     logging.basicConfig(level=logging.DEBUG)
 

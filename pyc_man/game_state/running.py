@@ -1,4 +1,3 @@
-from abc import abstractmethod
 import pygame
 
 from pyc_man.objects import Bonus, Pellet, Energizer
@@ -10,14 +9,17 @@ from x_input import Direction
 class RunningState(XGameState, ConsumeHandler):
     def __init__(self):
         super().__init__()
-        self.score = 0
-        self.pellets_count = 0
+        self.input.direction = None
+
         # Persistent values
         self.level = None
         self.sprites = None
         self.actors = None
         self.font = None
         self.bonuses = None
+        self.score = 0
+        self.pellets_count = 0
+        self.current_bonus = 0
 
     def setup(self, **persist_values):
         super().setup(**persist_values)
@@ -25,7 +27,7 @@ class RunningState(XGameState, ConsumeHandler):
 
     def teardown(self):
         self.persist_keys |= ['score', 'pellets_count']
-        super().teardown()
+        return super().teardown()
 
     def setup_actors(self):
         for actor in self.actors:
@@ -84,3 +86,8 @@ class RunningState(XGameState, ConsumeHandler):
 
     def add_pellet_count(self, count):
         self.pellets_count += count
+        if self.pellets_count == 70:
+            self.level.spawn(self.bonuses[self.current_bonus])
+            self.current_bonus += 1
+            if self.current_bonus == len(self.bonuses):
+                self.current_bonus = len(self.bonuses) - 1

@@ -7,6 +7,14 @@ from pyc_man.objects import Wall, Gate
 from x_input import Direction
 
 
+def wrap(x, y, width, height):
+    if not 0 <= x < width:
+        x = (x + width) % width
+    if not 0 <= y < height:
+        y = (y + height) % height
+    return x, y
+
+
 class ConsumeHandler:
     @abstractmethod
     def on_did_consume(self, subject, target):
@@ -33,8 +41,13 @@ class Actor(x_subject.XSubject, x_object.SpawnableMixin, ABC):
     def can_pass(self, object):
         return not isinstance(object, Wall)
 
+    def make_a_move(self, move_dist, screen):
+        width, height = screen
+        x, y = self.direction.move_point(self.rect.center, move_dist)
+        self.rect.center = wrap(x, y, width, height)
+
     def get_hit_box(self):
-        hit_box = pygame.Rect(0, 0, self.rect.width//2, self.rect.height//2)
+        hit_box = pygame.Rect(0, 0, self.rect.width // 2, self.rect.height // 2)
         hit_box.center = self.rect.center
         return hit_box
 
@@ -54,22 +67,15 @@ class PacMan(Actor):
 
         if input.direction:
             self.set_direction(input.direction)
-            if game_state.game.level.can_pass(self, self.direction.move(self.speed * time)):
+            if game_state.level.can_pass(self, self.direction.move(self.speed * time)):
                 self.make_a_move(self.speed * time, game_state.screen.get_size())
 
-        impact = self.get_hit(game_state.game.level.collider_sprites)
+        impact = self.get_hit(game_state.level.collider_sprites)
         if impact and isinstance(game_state, ConsumeHandler):
             game_state.on_did_consume(self, impact)
 
     def can_pass(self, object):
         return not (isinstance(object, Wall) or isinstance(object, Gate))
-
-    def make_a_move(self, move_dist, screen):
-        width, height = screen
-        x, y = center = self.direction.move_point(self.rect.center, move_dist)
-        if not 0 < x < width:
-            center = ((x + width) % width, y)
-        self.rect.center = center
 
     def die(self):
         self.lives -= 1
@@ -79,6 +85,3 @@ class PacMan(Actor):
 class Ghost(Actor):
     __spawnpoint__ = 'ghost'
     __speed__ = 0.2
-
-
-

@@ -27,5 +27,5 @@ class InitState(XGameState):
         self.done = True
 
     def teardown(self):
-        self.persist_keys |= ['level', 'sprites', 'font', 'bonuses', 'actors']
-        super().teardown()
+        self.persist_keys |= set(['level', 'sprites', 'font', 'bonuses', 'actors'])
+        return super().teardown()
