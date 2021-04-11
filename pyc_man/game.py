@@ -46,7 +46,7 @@ class PycManGame(XGame):
         self.bonuses = [self.sprites[Fruits.sprite_name(i)].make(Fruits, order=i)
                         for i in range(Fruits.count())]
 
-        self.score = 0
+        self.set_score(0)
 
     def setup_actors(self):
         actors = [
@@ -61,8 +61,9 @@ class PycManGame(XGame):
         temp = pygame.Surface(self.level.renderer.pixel_size)
         self.state.screen = temp
         self.level.draw(temp)
-        text = self.font.render(f'  score\n{self.score}', align='right')
-        temp.blit(text,(0, 0))
+
+        temp.blit(self.score, (0, 0))
+
         pygame.transform.smoothscale(temp, surface.get_size(), surface)
 
     def update(self, timedelta):
@@ -70,7 +71,6 @@ class PycManGame(XGame):
         self.dirty = True
 
     def set_score(self, points):
-        print(points)
-        self.score = points
+        self.score = self.font.render(f'  score\n{points}', align='right')
 
 

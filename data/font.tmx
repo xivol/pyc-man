@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="left-up" width="1" height="1" tilewidth="16" tileheight="16" infinite="1" nextlayerid="2" nextobjectid="1">
+ <tileset firstgid="1" name="font" tilewidth="16" tileheight="16" tilecount="472" columns="59">
+  <image source="img/font.png" width="944" height="128"/>
+  <tile id="0" type=" "/>
+  <tile id="1" type="!"/>
+  <tile id="2" type="&quot;"/>
+  <tile id="3" type="#"/>
+  <tile id="4" type="$"/>
+  <tile id="5" type="%"/>
+  <tile id="6" type="&amp;"/>
+  <tile id="7" type="'"/>
+  <tile id="8" type="["/>
+  <tile id="9" type="]"/>
+  <tile id="10" type="*"/>
+  <tile id="11" type="+"/>
+  <tile id="12" type=","/>
+  <tile id="13" type="-"/>
+  <tile id="14" type="."/>
+  <tile id="15" type="/"/>
+  <tile id="16" type="0"/>
+  <tile id="17" type="1"/>
+  <tile id="18" type="2"/>
+  <tile id="19" type="3"/>
+  <tile id="20" type="4"/>
+  <tile id="21" type="5"/>
+  <tile id="22" type="6"/>
+  <tile id="23" type="7"/>
+  <tile id="24" type="8"/>
+  <tile id="25" type="9"/>
+  <tile id="26" type=":"/>
+  <tile id="27" type=";"/>
+  <tile id="28" type="&lt;"/>
+  <tile id="29" type="="/>
+  <tile id="30" type="&gt;"/>
+  <tile id="31" type="?"/>
+  <tile id="32" type="@"/>
+  <tile id="33" type="A"/>
+  <tile id="34" type="B"/>
+  <tile id="35" type="C"/>
+  <tile id="36" type="D"/>
+  <tile id="37" type="E"/>
+  <tile id="38" type="F"/>
+  <tile id="39" type="G"/>
+  <tile id="40" type="H"/>
+  <tile id="41" type="I"/>
+  <tile id="42" type="J"/>
+  <tile id="43" type="K"/>
+  <tile id="44" type="L"/>
+  <tile id="45" type="M"/>
+  <tile id="46" type="N"/>
+  <tile id="47" type="O"/>
+  <tile id="48" type="P"/>
+  <tile id="49" type="Q"/>
+  <tile id="50" type="R"/>
+  <tile id="51" type="S"/>
+  <tile id="52" type="T"/>
+  <tile id="53" type="U"/>
+  <tile id="54" type="V"/>
+  <tile id="55" type="W"/>
+  <tile id="56" type="X"/>
+  <tile id="57" type="Y"/>
+  <tile id="58" type="Z"/>
+ </tileset>
+ <layer id="1" name="Tile Layer 1" width="1" height="1">
+  <data encoding="csv">0</data>
+ </layer>
+</map>
