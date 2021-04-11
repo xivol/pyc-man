@@ -1,11 +1,16 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 import pygame
-import enum
 
 import x_subject
 import x_object
-from pyc_man.game_state.basic import BasicState
 from pyc_man.objects import Wall, Gate
+from x_input import Direction
+
+
+class ConsumeHandler:
+    @abstractmethod
+    def on_did_consume(self, subject, target):
+        pass
 
 
 class Actor(x_subject.XSubject, x_object.SpawnableMixin, ABC):
@@ -42,7 +47,6 @@ class PacMan(Actor):
     def __init__(self, *params):
         super().__init__(*params)
         self.lives = self.__max_lives__
-        self.points = 0
 
     def act(self, time, input, game_state):
         if not self.is_alive:
@@ -54,7 +58,7 @@ class PacMan(Actor):
                 self.make_a_move(self.speed * time, game_state.screen.get_size())
 
         impact = self.get_hit(game_state.game.level.collider_sprites)
-        if impact and isinstance(game_state, BasicState):
+        if impact and isinstance(game_state, ConsumeHandler):
             game_state.on_did_consume(self, impact)
 
     def can_pass(self, object):

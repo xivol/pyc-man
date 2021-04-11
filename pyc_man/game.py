@@ -1,7 +1,7 @@
 import math
 import pygame
 
-from pyc_man.game_state.game_states import RunningState
+from pyc_man.game_state import RunningState
 from x_bmpfont import XBMPFont
 from x_game import XGame
 from x_sprite_factory import XSpriteFactory

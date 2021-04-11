@@ -1,16 +1,18 @@
+from abc import abstractmethod
 import pygame
 
-from pyc_man.objects import Bonus
-from pyc_man.subjects import PacMan
+from pyc_man.objects import Bonus, Pellet, Energizer
+from pyc_man.subjects import PacMan, ConsumeHandler
 from x_game_state import XGameState
 from x_input import Direction
 
 
-class RunningState(XGameState):
+class RunningState(XGameState, ConsumeHandler):
     def __init__(self):
         super().__init__()
         self.score = 0
         self.pellets_count = 0
+        # Persistent values
         self.level = None
         self.sprites = None
         self.actors = None
@@ -20,6 +22,10 @@ class RunningState(XGameState):
     def setup(self, **persist_values):
         super().setup(**persist_values)
         self.setup_actors()
+
+    def teardown(self):
+        self.persist_keys |= ['score', 'pellets_count']
+        super().teardown()
 
     def setup_actors(self):
         for actor in self.actors:
@@ -68,10 +74,13 @@ class RunningState(XGameState):
 
     def on_did_consume(self, subject, target):
         if isinstance(subject, PacMan) and isinstance(target, Bonus):
-            subject.points += target.points
-            self.set_score(subject.points)
+            self.add_score(target.points)
             self.level.remove(target)
+            if isinstance(target, Pellet) or isinstance(target, Energizer):
+                self.add_pellet_count(1)
 
-    def set_score(self, points):
-        print(points)
-        self.score = points
+    def add_score(self, points):
+        self.score += points
+
+    def add_pellet_count(self, count):
+        self.pellets_count += count
