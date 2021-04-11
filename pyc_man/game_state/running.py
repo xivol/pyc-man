@@ -9,7 +9,6 @@ from x_input import Direction
 class RunningState(XGameState, ConsumeHandler):
     def __init__(self):
         super().__init__()
-        self.input.direction = None
 
         # Persistent values
         self.level = None
@@ -24,9 +23,11 @@ class RunningState(XGameState, ConsumeHandler):
     def setup(self, **persist_values):
         super().setup(**persist_values)
         self.setup_actors()
+        self.input.direction = None
+        print(self.pellets_count)
 
     def teardown(self):
-        self.persist_keys |= ['score', 'pellets_count']
+        self.persist_keys |= {'score', 'pellets_count', 'current_bonus'}
         return super().teardown()
 
     def setup_actors(self):
@@ -80,6 +81,9 @@ class RunningState(XGameState, ConsumeHandler):
             self.level.remove(target)
             if isinstance(target, Pellet) or isinstance(target, Energizer):
                 self.add_pellet_count(1)
+                if self.level.pellets == 0:
+                    self.done = True
+                    self.next = "Win"
 
     def add_score(self, points):
         self.score += points

@@ -25,7 +25,7 @@ class XGameState:
         self.next = None
         self.previous = None
 
-        self.persist_keys = set()
+        self.persist_keys = set(['input'])
 
     def setup(self, **persist_values):
         self.logger.info("\tStarting")

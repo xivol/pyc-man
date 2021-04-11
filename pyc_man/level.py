@@ -27,6 +27,11 @@ class PycManLevel(XTiledLevel):
             if obj.type == self.__spawnpoint_type__:
                 self.spawnpoints[obj.name] = (obj.x, obj.y)
 
+    @property
+    def pellets(self):
+        return sum(1 for s in filter(lambda s: isinstance(s, Pellet) or isinstance(s, Energizer),
+                              self.display_sprites))
+
     def draw(self, surface):
         self.renderer.render_map(surface)
         self.display_sprites.draw(surface)
@@ -55,6 +60,10 @@ class PycManLevel(XTiledLevel):
                      filter(lambda x: issubclass(x[1], Bonus),
                             self.__collider_types__.items())):
             self.display_sprites.add(*g.sprites())
+
+    def clear_sprites(self):
+        self.display_sprites.empty()
+        self.collider_sprites.empty()
 
     def stick_to_grid(self, position):
         tw = self.data.tilewidth
