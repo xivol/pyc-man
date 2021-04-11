@@ -32,4 +32,10 @@ class XObject(pygame.sprite.Sprite):
         return self.rect
 
     def get_hit(self, colliders):
-        return pygame.sprite.spritecollideany(self, colliders, XObject.collided)
+        if self in colliders.sprites():
+            colliders.remove(self)
+            hit = pygame.sprite.spritecollideany(self, colliders, XObject.collided)
+            colliders.add(self)
+        else:
+            hit = pygame.sprite.spritecollideany(self, colliders, XObject.collided)
+        return hit

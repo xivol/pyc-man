@@ -23,7 +23,7 @@ class Pellet(Bonus):
         super().__init__(10, *params)
 
     def get_hit_box(self):
-        hit_box = pygame.Rect(0, 0, self.rect.width//4, self.rect.height//4)
+        hit_box = pygame.Rect(0, 0, self.rect.width // 3, self.rect.height // 3)
         hit_box.center = self.rect.center
         return hit_box
 
@@ -35,7 +35,7 @@ class Energizer(Bonus):
         super().__init__(50, *params)
 
     def get_hit_box(self):
-        hit_box = pygame.Rect(0, 0, self.rect.width//2, self.rect.height//2)
+        hit_box = pygame.Rect(0, 0, self.rect.width // 2, self.rect.height // 2)
         hit_box.center = self.rect.center
         return hit_box
 
@@ -49,10 +49,15 @@ class Fruits(Bonus, x_object.SpawnableMixin):
         i = kwargs.get('order', 0)
         super().__init__(self.__points__[i], *params)
 
+    def get_hit_box(self):
+        hit_box = pygame.Rect(0, 0, self.rect.width // 2, self.rect.height // 2)
+        hit_box.center = self.rect.center
+        return hit_box
+
     @classmethod
     def count(cls):
         return 8
 
     @classmethod
     def sprite_name(cls, i):
-        return cls.__sprite_name__ + '-' + str(i+1)
+        return cls.__sprite_name__ + '-' + str(i + 1)
