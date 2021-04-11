@@ -10,6 +10,7 @@ def logger_setup(cls, logger=None):
     else:
         cls.logger = logger
 
+
 class XGameState:
     def __init__(self, logger=None):
         if 'logger' not in self.__class__.__dict__:
@@ -25,10 +26,11 @@ class XGameState:
         self.next = None
         self.previous = None
 
-        self.persist_keys = set(['input'])
+        self.persist_keys = {'input'}
 
     def setup(self, **persist_values):
         self.logger.info("\tStarting")
+        self.dirty = True
         for k, v in persist_values.items():
             self.__setattr__(k, v)
             self.persist_keys.add(k)

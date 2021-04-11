@@ -1,5 +1,6 @@
 import pygame
 import x_object
+from x_animation import *
 
 
 class Wall(x_object.XObject):
@@ -43,21 +44,42 @@ class Energizer(Bonus):
 class Fruits(Bonus, x_object.SpawnableMixin):
     __points__ = [100, 300, 500, 700, 1000, 2000, 3000, 5000]
     __sprite_name__ = 'fruit'
+
+    @classmethod
+    def sprite_name(cls, i):
+        return cls.__sprite_name__ + '-' + str(i + 1)
+
+    @classmethod
+    def count(cls):
+        return 8
+
     __spawnpoint__ = 'fruit'
+    __animations__ = {"normal": StaticAnimation, "blinking": BlinkingAnimation}
+    __default_state__ = "blinking"
 
     def __init__(self, *params, **kwargs):
         i = kwargs.get('order', 0)
         super().__init__(self.__points__[i], *params)
+
+        self.animations = dict()
+        for state in self.__animations__:
+            self.animations[state] = self.__animations__[state](self.image)
+        self.state = None
+        self.set_state(self.__default_state__)
+
+    def set_state(self, new_state):
+        if self.state != new_state:
+            self.state = new_state
+            self.animation = self.animations[self.state]
+
+    def update(self, timedelta):
+        self.image = self.animation.image()
+        self.animation.update(timedelta)
+
 
     def get_hit_box(self):
         hit_box = pygame.Rect(0, 0, self.rect.width // 2, self.rect.height // 2)
         hit_box.center = self.rect.center
         return hit_box
 
-    @classmethod
-    def count(cls):
-        return 8
 
-    @classmethod
-    def sprite_name(cls, i):
-        return cls.__sprite_name__ + '-' + str(i + 1)

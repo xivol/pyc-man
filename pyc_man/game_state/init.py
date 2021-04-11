@@ -14,7 +14,6 @@ class InitState(XGameState):
 
         self.level = PycManLevel(map_file)
         self.sprites = XSpriteFactory(sprites_file)
-        self.level.setup_sprites(self.sprites)
         self.font = XBMPFont(font_file)
 
         self.bonuses = [self.sprites[Fruits.sprite_name(i)].make(Fruits, order=i)
@@ -27,5 +26,5 @@ class InitState(XGameState):
         self.done = True
 
     def teardown(self):
-        self.persist_keys |= set(['level', 'sprites', 'font', 'bonuses', 'actors'])
+        self.persist_keys |= {'level', 'sprites', 'font', 'bonuses', 'actors'}
         return super().teardown()

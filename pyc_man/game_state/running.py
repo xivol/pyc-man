@@ -17,22 +17,21 @@ class RunningState(XGameState, ConsumeHandler):
         self.font = None
         self.bonuses = None
         self.score = 0
+        self.fruit = None
         self.pellets_count = 0
         self.current_bonus = 0
 
     def setup(self, **persist_values):
         super().setup(**persist_values)
-        self.setup_actors()
+        self.level.setup_sprites(self.sprites)
+        for actor in self.actors:
+            self.level.spawn(actor)
+
         self.input.direction = None
-        print(self.pellets_count)
 
     def teardown(self):
         self.persist_keys |= {'score', 'pellets_count', 'current_bonus'}
         return super().teardown()
-
-    def setup_actors(self):
-        for actor in self.actors:
-            self.level.spawn(actor)
 
     def handle_input_event(self, event):
         super().handle_input_event(event)
@@ -63,6 +62,8 @@ class RunningState(XGameState, ConsumeHandler):
     def update(self, timedelta):
         for actor in self.actors:
             actor.update(timedelta, self.input, self)
+        if self.fruit:
+            self.fruit.update(timedelta)
         self.dirty = True
 
     def draw(self, surface):
@@ -91,7 +92,7 @@ class RunningState(XGameState, ConsumeHandler):
     def add_pellet_count(self, count):
         self.pellets_count += count
         if self.pellets_count == 70:
-            self.level.spawn(self.bonuses[self.current_bonus])
+            self.fruit = self.level.spawn(self.bonuses[self.current_bonus])
             self.current_bonus += 1
             if self.current_bonus == len(self.bonuses):
                 self.current_bonus = len(self.bonuses) - 1

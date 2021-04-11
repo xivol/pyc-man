@@ -22,7 +22,6 @@ class WinState(XGameState):
 
     def teardown(self):
         self.level.clear_sprites()
-        self.level.setup_sprites(self.sprites)
         self.pellets_count = 0
         return super().teardown()
 
@@ -30,8 +29,8 @@ class WinState(XGameState):
         super().handle_input_event(event)
 
         if event.type == pygame.KEYDOWN:
-            self.done = True
             self.next = "Running"
+            self.done = True
 
     def draw(self, surface):
         RunningState.draw(self, surface)
@@ -40,7 +39,6 @@ class WinState(XGameState):
         text = self.font.render(self.message)
         t_w, t_h = text.get_size()
         s_w, s_h = level_screen.get_size()
-
         level_screen.blit(text, (s_w // 2 - t_w // 2, s_h // 2 - t_h // 2))
 
         temp = pygame.Surface(surface.get_size())
