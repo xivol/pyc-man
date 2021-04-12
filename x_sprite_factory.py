@@ -2,6 +2,8 @@ import logging
 import pygame
 import pytmx
 
+from x_utils import XLoggingMixin
+
 
 class SpriteData:
     def __init__(self, gid, name, image, width, height):
@@ -18,17 +20,64 @@ class SpriteData:
                     *params, **kwargs)
 
 
-class XSpriteFactory:
-    @classmethod
-    def logger_setup(cls, logger=None):
-        if not logger:
-            cls.logger = logging.getLogger(cls.__name__)
-        else:
-            cls.logger = logger
+class AnimationData(SpriteData):
+    def __init__(self, gid, name, image, width, height):
+        super().__init__(gid, name, image, width, height)
 
+        self.frames = []
+        self.durations = []
+
+    def __len__(self):
+        return len(self.frames)
+
+    def __getitem__(self, item):
+        return self.frames[item]
+
+    def append(self, frame, duration):
+        self.frames.append(frame)
+        self.durations.append(duration)
+
+    def make(self, type, *params, **kwargs):
+        if len(self.frames) == 1:
+            return type(self.frames[0],
+                        self.durations[0],
+                        *params, **kwargs)
+        return type(self.frames,
+                    self.durations,
+                    *params, **kwargs)
+
+
+class XSpriteFactory(XLoggingMixin):
+    @staticmethod
+    def anim_sprite_names(sprite_name, anim_dict):
+        return map(lambda state: '-'.join((sprite_name, state)), anim_dict.keys())
+
+    def __init__(self, logger=None):
+        super().__init__(logger)
+        self.sprites = dict()
+
+    def __getitem__(self, item):
+        return self.sprites[item]
+
+    def add(self, key, **value):
+        if key in self.sprites:
+            raise Exception()
+
+        image = value.get('image', pygame.Surface((value['width'], value['height'])))
+        if 'frames' in value:
+            frames = value['frames']
+            durations = value['durations']
+            anim = AnimationData(value['gid'], key, image, value['width'], value['height'])
+            for i in range(len(frames)):
+                anim.append(frames[i], durations[i])
+            self.sprites[key] = anim
+        else:
+            self.sprites[key] = SpriteData(value['gid'], key, image, value['width'], value['height'])
+
+
+class XTMXSpriteFactory(XSpriteFactory):
     def __init__(self, filename, logger=None):
-        if 'logger' not in self.__class__.__dict__:
-            self.__class__.logger_setup(logger)
+        super().__init__(logger)
         self.tmx_data = pytmx.load_pygame(filename, load_all=True)
         self.sprites = self.load_sprites()
 
@@ -48,24 +97,15 @@ class XSpriteFactory:
 
     def get_images(self, gid, type, width, height, frames):
         if frames:
-            anim = []
+            anim = AnimationData(gid, type, self.tmx_data.get_tile_image_by_gid(gid),
+                                 width, height)
             for i, frame in enumerate(frames):
-                sd = SpriteData(frame.gid, '-'.join(type.split('-')+[str(i)]),
+                sd = SpriteData(frame.gid, '-'.join(type.split('-') + [str(i)]),
                                 self.tmx_data.get_tile_image_by_gid(frame.gid),
                                 width, height)
-                anim.append(sd)
+                anim.append(sd, frame.duration)
             return anim
         else:
             sd = SpriteData(gid, type, self.tmx_data.get_tile_image_by_gid(gid),
                             width, height)
             return sd
-
-    def __getitem__(self, item):
-        return self.sprites[item]
-
-    def add(self, key, **value):
-        if key in self.sprites:
-            raise Exception()
-
-        image = value.get('image', pygame.Surface((value['width'], value['height'])))
-        self.sprites[key] = SpriteData(value['gid'], key, image, value['width'], value['height'])

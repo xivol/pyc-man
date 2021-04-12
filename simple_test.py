@@ -1,4 +1,3 @@
-import logging
 from pprint import pprint
 
 import pygame

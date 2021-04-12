@@ -57,25 +57,27 @@ class Fruits(Bonus, x_object.SpawnableMixin):
     __animations__ = {"normal": StaticAnimation, "blinking": BlinkingAnimation}
     __default_state__ = "blinking"
 
+    def __sprite_factory__(self):
+        from x_sprite_factory import XSpriteFactory
+        sf = XSpriteFactory()
+
+        for i, anim_name in enumerate(XSpriteFactory.anim_sprite_names(self.__sprite_name__, self.__animations__)):
+            sf.add(anim_name,
+                   gid=-i-1, width=self.rect.width, height=self.rect.height,
+                   frames=[self.image], durations=[100])
+        return sf
+
     def __init__(self, *params, **kwargs):
         i = kwargs.get('order', 0)
         super().__init__(self.__points__[i], *params)
-
-        self.animations = dict()
-        for state in self.__animations__:
-            self.animations[state] = self.__animations__[state](self.image)
-        self.state = None
-        self.set_state(self.__default_state__)
-
-    def set_state(self, new_state):
-        if self.state != new_state:
-            self.state = new_state
-            self.animation = self.animations[self.state]
+        self.animator = AnimationManager(self.__sprite_name__,
+                                         self.__sprite_factory__(),
+                                         self.__animations__,
+                                         self.__default_state__)
 
     def update(self, timedelta):
-        self.image = self.animation.image()
-        self.animation.update(timedelta)
-
+        self.image = self.animator.current().image()
+        self.animator.update(timedelta)
 
     def get_hit_box(self):
         hit_box = pygame.Rect(0, 0, self.rect.width // 2, self.rect.height // 2)

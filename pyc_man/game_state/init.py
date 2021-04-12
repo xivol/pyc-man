@@ -5,7 +5,7 @@ from pyc_man.objects import Fruits
 from pyc_man.subjects import PacMan
 from x_bmpfont import XBMPFont
 from x_game_state import XGameState
-from x_sprite_factory import XSpriteFactory
+from x_sprite_factory import XTMXSpriteFactory
 
 
 class InitState(XGameState):
@@ -13,7 +13,7 @@ class InitState(XGameState):
         super().__init__()
 
         self.level = PycManLevel(map_file)
-        self.sprites = XSpriteFactory(sprites_file)
+        self.sprites = XTMXSpriteFactory(sprites_file)
         self.font = XBMPFont(font_file)
 
         self.bonuses = [self.sprites[Fruits.sprite_name(i)].make(Fruits, order=i)

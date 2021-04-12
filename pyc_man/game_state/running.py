@@ -91,7 +91,7 @@ class RunningState(XGameState, ConsumeHandler):
 
     def add_pellet_count(self, count):
         self.pellets_count += count
-        if self.pellets_count == 70:
+        if self.pellets_count == 70 or self.pellets_count == 170:
             self.fruit = self.level.spawn(self.bonuses[self.current_bonus])
             self.current_bonus += 1
             if self.current_bonus == len(self.bonuses):
