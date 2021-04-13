@@ -23,6 +23,7 @@ class WinState(XGameState):
     def teardown(self):
         self.level.clear_sprites()
         self.pellets_count = 0
+        self.actors[0].__speed__ *= 1.1
         return super().teardown()
 
     def handle_input_event(self, event):

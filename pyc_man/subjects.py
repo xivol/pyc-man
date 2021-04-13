@@ -4,6 +4,8 @@ import pygame
 import x_subject
 import x_object
 from pyc_man.objects import Wall, Gate
+from x_animation import Animation
+from .directional_animator import DirectionalAnimationManager
 from x_input import Direction
 
 
@@ -22,19 +24,36 @@ class ConsumeHandler:
 
 
 class Actor(x_subject.XSubject, x_object.SpawnableMixin, ABC):
+    __sprite_name__ = None
+    __animations__ = None
+    __default_state__ = None
+
     __speed__ = 0
 
-    def __init__(self, *params):
-        super().__init__(*params)
-        self.direction = None
-        self.set_direction(Direction.RIGHT)
+    def __init__(self, sprite_factory, *params, **kwargs):
         self.speed = self.__speed__
-        self.is_alive = True
+        self.direction = None
+        self.set_direction(Direction.default())
+        self.animator = DirectionalAnimationManager(self.__sprite_name__,
+                                                    sprite_factory,
+                                                    self.__animations__,
+                                                    self.__default_state__)
+        img = self.animator.current().image()
+        super().__init__(img, img.get_rect(), *params)
 
-    def set_direction(self, direction):
-        if self.direction != direction:
+    @abstractmethod
+    def act(self, time, input, game_state):
+        pass
+
+    def animate(self, timedelta):
+        self.image = self.animator.current().image()
+        self.animator.update(timedelta)
+
+    def set_direction(self, new_direction):
+        if self.direction != new_direction:
             self.makes_turn = True
-            self.direction = direction
+            self.direction = new_direction
+            return True
         else:
             self.makes_turn = False
 
@@ -53,26 +72,34 @@ class Actor(x_subject.XSubject, x_object.SpawnableMixin, ABC):
 
 
 class PacMan(Actor):
+    __sprite_name__ = 'pacman'
     __spawnpoint__ = 'pacman'
     __max_lives__ = 5
     __speed__ = 0.2
 
-    def __init__(self, *params):
-        super().__init__(*params)
+    __animations__ = {"normal": Animation, "dead": Animation}
+    __default_state__ = "normal"
+
+    def __init__(self, sprite_factory, *params, **kwargs):
         self.lives = self.__max_lives__
+        self.is_alive = True
+        super().__init__(sprite_factory, *params, **kwargs)
 
     def act(self, time, input, game_state):
         if not self.is_alive:
             return
 
         if input.direction:
-            self.set_direction(input.direction)
+            if self.set_direction(input.direction):
+                self.animator.set_direction(input.direction)
             if game_state.level.can_pass(self, self.direction.move(self.speed * time)):
                 self.make_a_move(self.speed * time, game_state.screen.get_size())
 
         impact = self.get_hit(game_state.level.collider_sprites)
         if impact and isinstance(game_state, ConsumeHandler):
             game_state.on_did_consume(self, impact)
+
+        self.animate(time)
 
     def can_pass(self, object):
         return not (isinstance(object, Wall) or isinstance(object, Gate))

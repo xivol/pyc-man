@@ -8,6 +8,13 @@ class Direction(enum.Enum):
     DOWN = 2
     LEFT = 3
 
+    def __str__(self):
+        return self.name.lower()
+
+    @staticmethod
+    def default():
+        return Direction.RIGHT
+
     def move(self, delta):
         return self.move_point((0,0), delta)
 

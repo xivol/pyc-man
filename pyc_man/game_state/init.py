@@ -19,7 +19,7 @@ class InitState(XGameState):
         self.bonuses = [self.sprites[Fruits.sprite_name(i)].make(Fruits, order=i)
                         for i in range(Fruits.count())]
         self.actors = [
-            self.sprites['pacman-left'][0].make(PacMan)
+            PacMan(self.sprites)
         ]
 
         self.next = "Running"

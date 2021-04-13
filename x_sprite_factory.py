@@ -21,11 +21,12 @@ class SpriteData:
 
 
 class AnimationData(SpriteData):
-    def __init__(self, gid, name, image, width, height):
+    def __init__(self, gid, name, image, width, height, looping):
         super().__init__(gid, name, image, width, height)
 
         self.frames = []
         self.durations = []
+        self.looping = looping
 
     def __len__(self):
         return len(self.frames)
@@ -44,6 +45,7 @@ class AnimationData(SpriteData):
                         *params, **kwargs)
         return type(self.frames,
                     self.durations,
+                    is_looping = self.looping,
                     *params, **kwargs)
 
 
@@ -57,7 +59,10 @@ class XSpriteFactory(XLoggingMixin):
         self.sprites = dict()
 
     def __getitem__(self, item):
-        return self.sprites[item]
+        return self.sprites.__getitem__(item)
+
+    def __contains__(self, item):
+        return self.sprites.__contains__(item)
 
     def add(self, key, **value):
         if key in self.sprites:
@@ -67,7 +72,7 @@ class XSpriteFactory(XLoggingMixin):
         if 'frames' in value:
             frames = value['frames']
             durations = value['durations']
-            anim = AnimationData(value['gid'], key, image, value['width'], value['height'])
+            anim = AnimationData(value['gid'], key, image, value['width'], value['height'], value.get('looping',False))
             for i in range(len(frames)):
                 anim.append(frames[i], durations[i])
             self.sprites[key] = anim
@@ -90,20 +95,18 @@ class XTMXSpriteFactory(XSpriteFactory):
         for gid, props in self.tmx_data.tile_properties.items():
             self.logger.info("\t%s\t%s", gid, props)
             if props['type']:
-                result[props['type']] = self.get_images(gid, props['type'],
-                                                        props['width'], props['height'],
-                                                        props['frames'])
+                result[props['type']] = self.get_images(gid, props)
         return result
 
-    def get_images(self, gid, type, width, height, frames):
+    def get_images(self, gid,  props):
+        type, width, height = props['type'], props['width'], props['height']
+        frames = props.get('frames', None)
         if frames:
             anim = AnimationData(gid, type, self.tmx_data.get_tile_image_by_gid(gid),
-                                 width, height)
+                                 width, height, props.get('looping', False))
             for i, frame in enumerate(frames):
-                sd = SpriteData(frame.gid, '-'.join(type.split('-') + [str(i)]),
-                                self.tmx_data.get_tile_image_by_gid(frame.gid),
-                                width, height)
-                anim.append(sd, frame.duration)
+                img = self.tmx_data.get_tile_image_by_gid(frame.gid)
+                anim.append(img, frame.duration)
             return anim
         else:
             sd = SpriteData(gid, type, self.tmx_data.get_tile_image_by_gid(gid),
