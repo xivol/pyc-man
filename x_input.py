@@ -1,4 +1,6 @@
 import enum
+import random
+
 import pygame
 
 
@@ -10,10 +12,17 @@ class Direction(enum.Enum):
 
     def __str__(self):
         return self.name.lower()
+    @staticmethod
+    def all():
+        return [Direction.LEFT, Direction.RIGHT, Direction.UP, Direction.DOWN]
 
     @staticmethod
     def default():
         return Direction.RIGHT
+
+    @staticmethod
+    def random():
+        return random.choice(Direction.all())
 
     def move(self, delta):
         return self.move_point((0,0), delta)

@@ -1,7 +1,7 @@
 import pygame
 import logging
-
 import x_fsm
+
 
 class XGame(x_fsm.XFiniteStateManager):
     __fps__ = 60

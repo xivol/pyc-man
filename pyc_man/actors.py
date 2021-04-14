@@ -28,11 +28,12 @@ class Actor(x_object.XAnimatedObject, SpawnableMixin, ABC):
     __speed__ = 0
 
     def __init__(self, *params, **kwargs):
+        super().__init__(*params, **kwargs)
         self.speed = self.__speed__
         self.direction = None
         self.makes_turn = False
+        self.is_alive = True
         self.set_direction(Direction.default())
-        super().__init__(*params, **kwargs)
 
     @abstractmethod
     def act(self, time, input, game_state):
@@ -46,7 +47,7 @@ class Actor(x_object.XAnimatedObject, SpawnableMixin, ABC):
         if self.direction != new_direction:
             self.makes_turn = True
             self.direction = new_direction
-            return True
+            self.animation.set_direction(new_direction)
         else:
             self.makes_turn = False
 
@@ -57,6 +58,7 @@ class Actor(x_object.XAnimatedObject, SpawnableMixin, ABC):
         width, height = screen
         x, y = self.direction.move_point(self.rect.center, move_dist)
         self.rect.center = wrap(x, y, width, height)
+        self.makes_turn = False
 
     def get_hit_box(self):
         hit_box = pygame.Rect(0, 0, self.rect.width // 2, self.rect.height // 2)
@@ -84,8 +86,7 @@ class PacMan(Actor):
             return
 
         if input.direction:
-            if self.set_direction(input.direction):
-                self.animation.set_direction(input.direction)
+            self.set_direction(input.direction)
             if game_state.level.can_pass(self, self.direction.move(self.speed * time)):
                 self.make_a_move(self.speed * time, game_state.screen.get_size())
 
@@ -97,13 +98,35 @@ class PacMan(Actor):
         return not (isinstance(object, Wall) or isinstance(object, Gate))
 
     def die(self):
+        self.animation.set_state('dead')
         self.lives -= 1
         self.is_alive = False
 
+    def revive(self):
+        self.animation.set_state('normal')
+        self.is_alive = True
+
 
 class Ghost(Actor):
-    __spawnpoint__ = 'ghost'
+    __sprite_name__ = 'ghost'
+    __spawnpoint__ = 'ghost-4'
     __speed__ = 0.18
 
+    __animations__ = {'normal': Animation,
+                      'dead': Animation,
+                      'frighten-normal': Animation,
+                      'frighten-timeout': Animation}
+    __default_state__ = "normal"
+
     def act(self, time, input, game_state):
-        pass
+        if game_state.screen:
+            self.set_direction(self.direction)
+            if game_state.level.can_pass(self, self.direction.move(self.speed * time)):
+                self.make_a_move(self.speed * time, game_state.screen.get_size())
+            else:
+                d = Direction((self.direction.value + 1 ) % 4)
+                self.set_direction(Direction.random())
+
+            impact = self.get_hit(game_state.level.collider_sprites)
+            if impact and isinstance(game_state, ConsumeHandler):
+                game_state.on_did_consume(self, impact)

@@ -1,7 +1,7 @@
 import pygame
 
 from pyc_man.objects import BonusMixin, Pellet, Energizer
-from pyc_man.actors import PacMan, ConsumeHandler
+from pyc_man.actors import PacMan, ConsumeHandler, Ghost
 from x_game_state import XGameState
 from x_input import Direction
 
@@ -24,11 +24,18 @@ class RunningState(XGameState, ConsumeHandler):
     def setup(self, **persist_values):
         super().setup(**persist_values)
 
-        self.level.setup_sprites(self.sprites)
         for actor in self.actors:
+            if not actor.is_alive:
+                actor.revive()
             self.level.spawn(actor)
 
         self.input.direction = None
+
+    def teardown(self):
+        if self.fruit:
+            self.level.remove(self.fruit)
+            self.fruit = None
+        return super().teardown()
 
     def handle_input_event(self, event):
         super().handle_input_event(event)
@@ -58,10 +65,6 @@ class RunningState(XGameState, ConsumeHandler):
 
     def update(self, timedelta):
         self.level.update(timedelta, self.input, self)
-        # for actor in self.actors:
-        #     actor.act(timedelta, self.input, self)
-        # if self.fruit:
-        #     self.fruit.update(timedelta)
         self.dirty = True
 
     def draw(self, surface):
@@ -83,13 +86,17 @@ class RunningState(XGameState, ConsumeHandler):
                 if self.level.pellets == 0:
                     self.done = True
                     self.next = "Win"
+        elif isinstance(subject, Ghost) and isinstance(target,PacMan):
+            self.done = True
+            self.next = "Lose"
 
     def add_score(self, points):
         self.score += points
 
     def add_pellet_count(self, count):
         self.pellets_count += count
-        if self.pellets_count == 70 or self.pellets_count == 170:
+        if (self.pellets_count == 70 or self.pellets_count == 170) and\
+                not self.fruit:
             self.fruit = self.level.spawn(self.bonuses[self.current_bonus])
             self.current_bonus += 1
             if self.current_bonus == len(self.bonuses):

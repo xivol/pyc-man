@@ -16,7 +16,7 @@ if __name__ == '__main__':
     import logging
     import pygame
 
-    from pyc_man.game_state import InitState, WinState
+    from pyc_man.game_state import InitState, WinState, LoseState
     from pyc_man.game_state import RunningState
     from x_game import XGame
 
@@ -28,7 +28,8 @@ if __name__ == '__main__':
                                          os.path.join('data', 'sprites.tmx'),
                                          os.path.join('data', 'font.tmx')),
                        "Running": RunningState(),
-                       "Win":  WinState('press start to continue')
+                       "Win":  WinState('press start to continue'),
+                       "Lose": LoseState('press start to continue')
         }
         game.setup_states(game_states, "Init")
         game.run()

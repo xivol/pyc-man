@@ -2,6 +2,7 @@ from itertools import product
 
 import pygame
 
+from pyc_man.actors import Ghost
 from pyc_man.objects import Wall, Pellet, Energizer, Gate, BonusMixin
 from tiled_renderer import TiledRenderer
 from x_level import XTiledLevel
@@ -82,8 +83,8 @@ class PycManLevel(XTiledLevel):
 
     def remove(self, object):
         self.collider_sprites.remove(object)
-        if isinstance(object, BonusMixin):
-            self.display_sprites.remove(object)
+        #if isinstance(object, BonusMixin):
+        self.display_sprites.remove(object)
 
     def spawn(self, object):
         position = self.spawnpoints[object.spawnpoint()]

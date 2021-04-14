@@ -1,4 +1,3 @@
-import logging
 import pygame
 import pytmx
 
@@ -23,6 +22,7 @@ class SpriteData:
         return type(self.image,
                     pygame.Rect((0, 0), self.size),
                     *params, **kwargs)
+
 
 class XSpriteFactory(XLoggingMixin):
     @staticmethod

@@ -22,13 +22,15 @@ class Animation(object):
 
     def flip(self):
         next_frame = self.current_frame + 1
+        reset_time = 0
         if next_frame == len(self.images):
             if self.is_looping:
                 next_frame = 0
             else:
                 next_frame -= 1
+                reset_time = self.time_since_flip
         self.current_frame = next_frame
-        self.time_since_flip = 0
+        self.time_since_flip = reset_time
 
     def update(self, timedelta):
         self.time_since_flip += timedelta
@@ -48,6 +50,10 @@ class Animation(object):
         self.current_frame = 0
         self.time_since_flip = 0
 
+    def is_finished(self):
+        return not self.is_looping and\
+            self.current_frame == len(self.images) - 1 and\
+            self.time_since_flip >= self.durations[self.current_frame]
 
 class AnimationManager:
     @staticmethod
