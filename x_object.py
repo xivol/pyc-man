@@ -1,14 +1,6 @@
 import pygame
 
 
-class SpawnableMixin:
-    __spawnpoint__ = None
-
-    @classmethod
-    def spawnpoint(cls):
-        return cls.__spawnpoint__
-
-
 class XObject(pygame.sprite.Sprite):
     __sprite_name__ = None
 
@@ -19,14 +11,6 @@ class XObject(pygame.sprite.Sprite):
     @staticmethod
     def collided(subject, target):
         return subject.get_hit_box().colliderect(target.get_hit_box())
-
-    def __init__(self, image, rect, position=None, *groups):
-        super().__init__(*groups)
-        self.rect = rect
-        self.image = image
-
-        if position:
-            self.rect.center = position
 
     def get_hit_box(self):
         return self.rect
@@ -39,3 +23,32 @@ class XObject(pygame.sprite.Sprite):
         else:
             hit = pygame.sprite.spritecollideany(self, colliders, XObject.collided)
         return hit
+
+
+class XStaticObject(XObject):
+    def __init__(self, image, rect, position=None, *groups):
+        super().__init__(*groups)
+        self.rect = rect
+        self.image = image
+
+        if position:
+            self.rect.center = position
+
+
+class XAnimatedObject(XObject):
+    __sprite_name__ = None
+    __animations__ = None
+    __default_state__ = None
+    __manager_type__ = None
+
+    def __init__(self, manager, position=None, *groups):
+        super().__init__(*groups)
+        self.animation = manager
+        img = self.animation.current().image()
+        self.rect = img.get_rect()
+        if position:
+            self.rect.center = position
+
+    def animate(self, timedelta):
+        self.image = self.animation.current().image()
+        self.animation.update(timedelta)

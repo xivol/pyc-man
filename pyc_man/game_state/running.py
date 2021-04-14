@@ -1,7 +1,7 @@
 import pygame
 
-from pyc_man.objects import Bonus, Pellet, Energizer
-from pyc_man.subjects import PacMan, ConsumeHandler
+from pyc_man.objects import BonusMixin, Pellet, Energizer
+from pyc_man.actors import PacMan, ConsumeHandler
 from x_game_state import XGameState
 from x_input import Direction
 
@@ -61,7 +61,7 @@ class RunningState(XGameState, ConsumeHandler):
 
     def update(self, timedelta):
         for actor in self.actors:
-            actor.update(timedelta, self.input, self)
+            actor.act(timedelta, self.input, self)
         if self.fruit:
             self.fruit.update(timedelta)
         self.dirty = True
@@ -77,8 +77,8 @@ class RunningState(XGameState, ConsumeHandler):
         pygame.transform.smoothscale(temp, surface.get_size(), surface)
 
     def on_did_consume(self, subject, target):
-        if isinstance(subject, PacMan) and isinstance(target, Bonus):
-            self.add_score(target.points)
+        if isinstance(subject, PacMan) and isinstance(target, BonusMixin):
+            self.add_score(target.points())
             self.level.remove(target)
             if isinstance(target, Pellet) or isinstance(target, Energizer):
                 self.add_pellet_count(1)
@@ -91,8 +91,8 @@ class RunningState(XGameState, ConsumeHandler):
 
     def add_pellet_count(self, count):
         self.pellets_count += count
-        if self.pellets_count == 70 or self.pellets_count == 170:
-            self.fruit = self.level.spawn(self.bonuses[self.current_bonus])
-            self.current_bonus += 1
-            if self.current_bonus == len(self.bonuses):
-                self.current_bonus = len(self.bonuses) - 1
+        # if self.pellets_count == 70 or self.pellets_count == 170:
+        #     self.fruit = self.level.spawn(self.bonuses[self.current_bonus])
+        #     self.current_bonus += 1
+        #     if self.current_bonus == len(self.bonuses):
+        #         self.current_bonus = len(self.bonuses) - 1

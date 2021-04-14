@@ -2,7 +2,8 @@ import pygame
 
 from pyc_man.level import PycManLevel
 from pyc_man.objects import Fruits
-from pyc_man.subjects import PacMan
+from pyc_man.actors import PacMan
+from x_animation_factory import XAnimationFactory
 from x_bmpfont import XBMPFont
 from x_game_state import XGameState
 from x_sprite_factory import XTMXSpriteFactory
@@ -14,17 +15,18 @@ class InitState(XGameState):
 
         self.level = PycManLevel(map_file)
         self.sprites = XTMXSpriteFactory(sprites_file)
+        self.animations = XAnimationFactory(self.sprites)
         self.font = XBMPFont(font_file)
 
-        self.bonuses = [self.sprites[Fruits.sprite_name(i)].make(Fruits, order=i)
-                        for i in range(Fruits.count())]
+        self.bonuses = [] #[self.sprites[Fruits.sprite_name(i)].make(Fruits, order=i)
+        #                 for i in range(Fruits.count())]
         self.actors = [
-            PacMan(self.sprites)
+            self.animations.make(PacMan)
         ]
 
         self.next = "Running"
         self.done = True
 
     def teardown(self):
-        self.persist_keys |= {'level', 'sprites', 'font', 'bonuses', 'actors'}
+        self.persist_keys |= {'level', 'sprites', 'animations', 'font', 'bonuses', 'actors'}
         return super().teardown()

@@ -1,27 +1,34 @@
 import pygame
-import x_object
+from x_object import XStaticObject, XAnimatedObject
 from x_animation import *
 
 
-class Wall(x_object.XObject):
+class Wall(XStaticObject):
     pass
 
 
-class Gate(x_object.XObject):
+class Gate(XStaticObject):
     pass
 
 
-class Bonus(x_object.XObject):
-    def __init__(self, points, *params):
-        super().__init__(*params)
-        self.points = points
+class BonusMixin:
+    __points__ = None
+    @classmethod
+    def points(cls):
+        return cls.__points__
 
 
-class Pellet(Bonus):
+class SpawnableMixin:
+    __spawnpoint__ = None
+
+    @classmethod
+    def spawnpoint(cls):
+        return cls.__spawnpoint__
+
+
+class Pellet(XStaticObject, BonusMixin):
     __sprite_name__ = 'pellet'
-
-    def __init__(self, *params):
-        super().__init__(10, *params)
+    __points__ = 10
 
     def get_hit_box(self):
         hit_box = pygame.Rect(0, 0, self.rect.width // 3, self.rect.height // 3)
@@ -29,11 +36,9 @@ class Pellet(Bonus):
         return hit_box
 
 
-class Energizer(Bonus):
+class Energizer(XStaticObject, BonusMixin):
     __sprite_name__ = 'energizer'
-
-    def __init__(self, *params):
-        super().__init__(50, *params)
+    __points__ = 50
 
     def get_hit_box(self):
         hit_box = pygame.Rect(0, 0, self.rect.width // 2, self.rect.height // 2)
@@ -41,9 +46,13 @@ class Energizer(Bonus):
         return hit_box
 
 
-class Fruits(Bonus, x_object.SpawnableMixin):
+class Fruits(XAnimatedObject, BonusMixin, SpawnableMixin):
     __points__ = [100, 300, 500, 700, 1000, 2000, 3000, 5000]
     __sprite_name__ = 'fruit'
+
+    @classmethod
+    def points(cls, i):
+        return cls.__points__[i]
 
     @classmethod
     def sprite_name(cls, i):
@@ -57,19 +66,9 @@ class Fruits(Bonus, x_object.SpawnableMixin):
     __animations__ = {"normal": StaticAnimation, "blinking": BlinkingAnimation}
     __default_state__ = "blinking"
 
-    def __sprite_factory__(self):
-        from x_sprite_factory import XSpriteFactory
-        sf = XSpriteFactory()
-
-        for i, anim_name in enumerate(XSpriteFactory.anim_sprite_names(self.__sprite_name__, self.__animations__)):
-            sf.add(anim_name,
-                   gid=-i-1, width=self.rect.width, height=self.rect.height,
-                   frames=[self.image], durations=[100])
-        return sf
-
     def __init__(self, *params, **kwargs):
         i = kwargs.get('order', 0)
-        super().__init__(self.__points__[i], *params)
+        super().__init__()
         self.animator = AnimationManager(self.__sprite_name__,
                                          self.__sprite_factory__(),
                                          self.__animations__,

@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 import pygame
 
-import x_subject
 import x_object
-from pyc_man.objects import Wall, Gate
 from x_animation import Animation
-from .directional_animator import DirectionalAnimationManager
 from x_input import Direction
+from pyc_man.objects import Wall, Gate, SpawnableMixin
+from pyc_man.directional_animator import DirectionalAnimationManager
+
 
 
 def wrap(x, y, width, height):
@@ -23,31 +23,20 @@ class ConsumeHandler:
         pass
 
 
-class Actor(x_subject.XSubject, x_object.SpawnableMixin, ABC):
-    __sprite_name__ = None
-    __animations__ = None
-    __default_state__ = None
-
+class Actor(x_object.XAnimatedObject, SpawnableMixin, ABC):
+    __manager_type__ = DirectionalAnimationManager
     __speed__ = 0
 
-    def __init__(self, sprite_factory, *params, **kwargs):
+    def __init__(self, *params, **kwargs):
         self.speed = self.__speed__
         self.direction = None
+        self.makes_turn = False
         self.set_direction(Direction.default())
-        self.animator = DirectionalAnimationManager(self.__sprite_name__,
-                                                    sprite_factory,
-                                                    self.__animations__,
-                                                    self.__default_state__)
-        img = self.animator.current().image()
-        super().__init__(img, img.get_rect(), *params)
+        super().__init__(*params, **kwargs)
 
     @abstractmethod
     def act(self, time, input, game_state):
         pass
-
-    def animate(self, timedelta):
-        self.image = self.animator.current().image()
-        self.animator.update(timedelta)
 
     def set_direction(self, new_direction):
         if self.direction != new_direction:
@@ -75,7 +64,7 @@ class PacMan(Actor):
     __sprite_name__ = 'pacman'
     __spawnpoint__ = 'pacman'
     __max_lives__ = 5
-    __speed__ = 0.2
+    __speed__ = 0.25
 
     __animations__ = {"normal": Animation, "dead": Animation}
     __default_state__ = "normal"
@@ -91,7 +80,7 @@ class PacMan(Actor):
 
         if input.direction:
             if self.set_direction(input.direction):
-                self.animator.set_direction(input.direction)
+                self.animation.set_direction(input.direction)
             if game_state.level.can_pass(self, self.direction.move(self.speed * time)):
                 self.make_a_move(self.speed * time, game_state.screen.get_size())
 

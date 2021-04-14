@@ -1,5 +1,6 @@
-import pygame
+import random
 
+import pygame
 from x_sprite_factory import XSpriteFactory
 
 
@@ -69,12 +70,14 @@ class AnimationManager:
     def state_names(sprite_name, anim_dict):
         return zip(anim_dict.keys(), XSpriteFactory.anim_sprite_names(sprite_name, anim_dict))
 
-    def __init__(self, sprite_name, sprites, anim_dict, init_state):
+    def __init__(self, sprite_name, sprites, anim_dict, init_state=None):
         self.animations = dict()
         self.state = None
         self.current_animation = None
         for state, anim_name in AnimationManager.state_names(sprite_name, anim_dict):
             self.animations[state] = self.__make_animation__(sprites, anim_name, anim_dict[state])
+        if not init_state:
+            init_state = random.choice(anim_dict.keys())
         self.set_state(init_state)
 
     def __make_animation__(self, sprites, anim_name, anim_type):

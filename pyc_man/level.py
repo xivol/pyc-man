@@ -2,10 +2,10 @@ from itertools import product
 
 import pygame
 
-from pyc_man.objects import Wall, Pellet, Energizer, Gate, Bonus
+from pyc_man.objects import Wall, Pellet, Energizer, Gate, BonusMixin
 from tiled_renderer import TiledRenderer
 from x_level import XTiledLevel
-from x_object import XObject
+from x_object import XStaticObject
 
 
 class PycManLevel(XTiledLevel):
@@ -57,7 +57,7 @@ class PycManLevel(XTiledLevel):
 
         self.display_sprites = pygame.sprite.Group()
         for g in map(lambda x: groups[x[0]],
-                     filter(lambda x: issubclass(x[1], Bonus),
+                     filter(lambda x: issubclass(x[1], BonusMixin),
                             self.__collider_types__.items())):
             self.display_sprites.add(*g.sprites())
 
@@ -76,13 +76,13 @@ class PycManLevel(XTiledLevel):
         if actor.makes_turn:
             actor.rect.center = self.stick_to_grid(actor.rect.center)
         actor.rect = actor.rect.move(direction)
-        collider = pygame.sprite.spritecollideany(actor, self.collider_sprites, XObject.collided)
+        collider = pygame.sprite.spritecollideany(actor, self.collider_sprites, XStaticObject.collided)
         actor.rect = old_rect
         return actor.can_pass(collider)
 
     def remove(self, object):
         self.collider_sprites.remove(object)
-        if isinstance(object, Bonus):
+        if isinstance(object, BonusMixin):
             self.display_sprites.remove(object)
 
     def spawn(self, object):

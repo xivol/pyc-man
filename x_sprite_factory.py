@@ -6,11 +6,16 @@ from x_utils import XLoggingMixin
 
 
 class SpriteData:
-    def __init__(self, gid, name, image, width, height):
+    def __init__(self, gid, name, image, width, height, **kwargs):
         self.image = image
         self.gid = gid
         self.name = name
         self.size = (width, height)
+        self.frames = kwargs.get('frames', None)
+        self.looping = kwargs.get('looping', False)
+
+    def is_animated(self):
+        return self.frames is not None
 
     def make(self, type, *params, **kwargs):
         if not issubclass(type, pygame.sprite.Sprite):
@@ -18,36 +23,6 @@ class SpriteData:
         return type(self.image,
                     pygame.Rect((0, 0), self.size),
                     *params, **kwargs)
-
-
-class AnimationData(SpriteData):
-    def __init__(self, gid, name, image, width, height, looping):
-        super().__init__(gid, name, image, width, height)
-
-        self.frames = []
-        self.durations = []
-        self.looping = looping
-
-    def __len__(self):
-        return len(self.frames)
-
-    def __getitem__(self, item):
-        return self.frames[item]
-
-    def append(self, frame, duration):
-        self.frames.append(frame)
-        self.durations.append(duration)
-
-    def make(self, type, *params, **kwargs):
-        if len(self.frames) == 1:
-            return type(self.frames[0],
-                        self.durations[0],
-                        *params, **kwargs)
-        return type(self.frames,
-                    self.durations,
-                    is_looping = self.looping,
-                    *params, **kwargs)
-
 
 class XSpriteFactory(XLoggingMixin):
     @staticmethod
@@ -68,16 +43,9 @@ class XSpriteFactory(XLoggingMixin):
         if key in self.sprites:
             raise Exception()
 
-        image = value.get('image', pygame.Surface((value['width'], value['height'])))
-        if 'frames' in value:
-            frames = value['frames']
-            durations = value['durations']
-            anim = AnimationData(value['gid'], key, image, value['width'], value['height'], value.get('looping',False))
-            for i in range(len(frames)):
-                anim.append(frames[i], durations[i])
-            self.sprites[key] = anim
-        else:
-            self.sprites[key] = SpriteData(value['gid'], key, image, value['width'], value['height'])
+        image = value.pop('image', pygame.Surface((value['width'], value['height'])))
+        self.sprites[key] = SpriteData(value.pop('gid'), key, image, \
+                                       value.pop('width'), value.pop('height'), **value)
 
 
 class XTMXSpriteFactory(XSpriteFactory):
@@ -95,20 +63,12 @@ class XTMXSpriteFactory(XSpriteFactory):
         for gid, props in self.tmx_data.tile_properties.items():
             self.logger.info("\t%s\t%s", gid, props)
             if props['type']:
-                result[props['type']] = self.get_images(gid, props)
+                type = props.pop('type')
+                width= props.pop('width')
+                height = props.pop('height')
+                result[type] = SpriteData(gid, type, self.get_raw_image(gid),
+                                                   width, height, **props)
         return result
 
-    def get_images(self, gid,  props):
-        type, width, height = props['type'], props['width'], props['height']
-        frames = props.get('frames', None)
-        if frames:
-            anim = AnimationData(gid, type, self.tmx_data.get_tile_image_by_gid(gid),
-                                 width, height, props.get('looping', False))
-            for i, frame in enumerate(frames):
-                img = self.tmx_data.get_tile_image_by_gid(frame.gid)
-                anim.append(img, frame.duration)
-            return anim
-        else:
-            sd = SpriteData(gid, type, self.tmx_data.get_tile_image_by_gid(gid),
-                            width, height)
-            return sd
+    def get_raw_image(self, gid):
+        return self.tmx_data.get_tile_image_by_gid(gid)
