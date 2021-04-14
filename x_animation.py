@@ -49,21 +49,6 @@ class Animation(object):
         self.time_since_flip = 0
 
 
-class BlinkingAnimation(Animation):
-    def __init__(self, image, duration=200):
-        super().__init__([image, pygame.Surface(image.get_size(), pygame.SRCALPHA)],
-                         duration,
-                         is_looping=True)
-
-
-class StaticAnimation(Animation):
-    def __init__(self, image, duration=0):
-        super().__init__([image], duration)
-
-    def update(self, timedelta):
-        pass
-
-
 class AnimationManager:
     @staticmethod
     def state_names(sprite_name, anim_dict):

@@ -26,9 +26,13 @@ class InitState(XGameState):
 
         self.bonuses = list(map(lambda x: self.sprites[x.__sprite_name__].make(x),
                                 Fruits.types()))
+        for b in self.bonuses:
+            self.logger.info("fruit: %s %d", b, b.points())
 
         self.actors = [
             self.animations.make(PacMan)
         ]
+
+        self.logger.info(self.actors)
 
         self.done = True
