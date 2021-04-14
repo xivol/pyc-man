@@ -2,46 +2,28 @@ import logging
 
 import pygame
 from x_input import XGameInput
+from x_utils import XLoggingMixin
+from x_fsm import XState
 
 
-def logger_setup(cls, logger=None):
-    if not logger:
-        cls.logger = logging.getLogger(cls.__name__)
-    else:
-        cls.logger = logger
-
-
-class XGameState:
-    def __init__(self, logger=None):
-        if 'logger' not in self.__class__.__dict__:
-            logger_setup(self.__class__, logger)
+class XGameState(XState, XLoggingMixin):
+    def __init__(self, next=None, previous=None, persists=set(), logger=None):
+        self.__class__.logger_setup(logger)
+        super().__init__(next, previous, persists | {'input'})
 
         self.dirty = True
         self.screen = None
         self.input = XGameInput()
 
-        self.done = False
-        self.final = False
-
-        self.next = None
-        self.previous = None
-
-        self.persist_keys = {'input'}
-
     def setup(self, **persist_values):
         self.logger.info("\tStarting")
         self.dirty = True
-        for k, v in persist_values.items():
-            self.__setattr__(k, v)
-            self.persist_keys.add(k)
+        super().setup(**persist_values)
 
     def teardown(self):
         self.done = False
-        persist = {}
-        for k in self.persist_keys:
-            persist[k] = self.__getattribute__(k)
         self.logger.info("\tFinished")
-        return persist
+        return super().teardown()
 
     def handle_input_event(self, event):
         if event.type == pygame.KEYUP:

@@ -1,6 +1,3 @@
-from abc import abstractmethod
-
-
 
 class XTiledLevel:
     __colliders_layer__ = 'collider'

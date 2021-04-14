@@ -1,4 +1,8 @@
+from enum import Enum
+
 import pygame
+
+from pyc_man.blinking_animator import BlinkingAnimator
 from x_object import XStaticObject, XAnimatedObject
 from x_animation import *
 
@@ -13,6 +17,7 @@ class Gate(XStaticObject):
 
 class BonusMixin:
     __points__ = None
+
     @classmethod
     def points(cls):
         return cls.__points__
@@ -36,8 +41,16 @@ class Pellet(XStaticObject, BonusMixin):
         return hit_box
 
 
-class Energizer(XStaticObject, BonusMixin):
+class XBlinkingObject(XAnimatedObject):
+    def __init__(self, image, rect, position=None, *groups):
+        super().__init__(BlinkingAnimator(self.__sprite_name__, image, self.__default_state__),
+                         position,
+                         *groups)
+
+
+class Energizer(XBlinkingObject, BonusMixin):
     __sprite_name__ = 'energizer'
+    __default_state__ = "blinking"
     __points__ = 50
 
     def get_hit_box(self):
@@ -46,41 +59,21 @@ class Energizer(XStaticObject, BonusMixin):
         return hit_box
 
 
-class Fruits(XAnimatedObject, BonusMixin, SpawnableMixin):
+class Fruits(XBlinkingObject, BonusMixin, SpawnableMixin):
     __points__ = [100, 300, 500, 700, 1000, 2000, 3000, 5000]
     __sprite_name__ = 'fruit'
-
-    @classmethod
-    def points(cls, i):
-        return cls.__points__[i]
-
-    @classmethod
-    def sprite_name(cls, i):
-        return cls.__sprite_name__ + '-' + str(i + 1)
-
-    @classmethod
-    def count(cls):
-        return 8
-
+    __default_state__ = "normal"
     __spawnpoint__ = 'fruit'
-    __animations__ = {"normal": StaticAnimation, "blinking": BlinkingAnimation}
-    __default_state__ = "blinking"
-
-    def __init__(self, *params, **kwargs):
-        i = kwargs.get('order', 0)
-        super().__init__()
-        self.animator = AnimationManager(self.__sprite_name__,
-                                         self.__sprite_factory__(),
-                                         self.__animations__,
-                                         self.__default_state__)
-
-    def update(self, timedelta):
-        self.image = self.animator.current().image()
-        self.animator.update(timedelta)
 
     def get_hit_box(self):
         hit_box = pygame.Rect(0, 0, self.rect.width // 2, self.rect.height // 2)
         hit_box.center = self.rect.center
         return hit_box
 
-
+    @classmethod
+    def types(cls):
+        for i,name in enumerate(['Cherry', 'Strawberry', 'Orange',
+                                 'Apple', 'Mellon', 'Galaxian', 'Bell', 'Key']):
+            yield type(name, (Fruits,), {
+                '__points__': Fruits.__points__[i],
+                '__sprite_name__': Fruits.__sprite_name__ + '-' + str(i+1)})

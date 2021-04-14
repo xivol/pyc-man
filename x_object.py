@@ -44,10 +44,13 @@ class XAnimatedObject(XObject):
     def __init__(self, manager, position=None, *groups):
         super().__init__(*groups)
         self.animation = manager
-        img = self.animation.current().image()
+        self.image = img = self.animation.current().image()
         self.rect = img.get_rect()
         if position:
             self.rect.center = position
+
+    def update(self, timedelta, *params):
+        self.animate(timedelta)
 
     def animate(self, timedelta):
         self.image = self.animation.current().image()

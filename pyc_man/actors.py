@@ -38,6 +38,10 @@ class Actor(x_object.XAnimatedObject, SpawnableMixin, ABC):
     def act(self, time, input, game_state):
         pass
 
+    def update(self, time, input, game_state):
+        self.act(time, input, game_state)
+        self.animate(time)
+
     def set_direction(self, new_direction):
         if self.direction != new_direction:
             self.makes_turn = True
@@ -63,14 +67,15 @@ class Actor(x_object.XAnimatedObject, SpawnableMixin, ABC):
 class PacMan(Actor):
     __sprite_name__ = 'pacman'
     __spawnpoint__ = 'pacman'
+    __start_lives__ = 3
     __max_lives__ = 5
-    __speed__ = 0.25
+    __speed__ = 0.2
 
     __animations__ = {"normal": Animation, "dead": Animation}
     __default_state__ = "normal"
 
     def __init__(self, sprite_factory, *params, **kwargs):
-        self.lives = self.__max_lives__
+        self.lives = self.__start_lives__
         self.is_alive = True
         super().__init__(sprite_factory, *params, **kwargs)
 
@@ -88,8 +93,6 @@ class PacMan(Actor):
         if impact and isinstance(game_state, ConsumeHandler):
             game_state.on_did_consume(self, impact)
 
-        self.animate(time)
-
     def can_pass(self, object):
         return not (isinstance(object, Wall) or isinstance(object, Gate))
 
@@ -100,4 +103,7 @@ class PacMan(Actor):
 
 class Ghost(Actor):
     __spawnpoint__ = 'ghost'
-    __speed__ = 0.2
+    __speed__ = 0.18
+
+    def act(self, time, input, game_state):
+        pass

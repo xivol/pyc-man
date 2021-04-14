@@ -8,7 +8,7 @@ from x_input import Direction
 
 class RunningState(XGameState, ConsumeHandler):
     def __init__(self):
-        super().__init__()
+        super().__init__(persists={'score', 'pellets_count', 'current_bonus'})
 
         # Persistent values
         self.level = None
@@ -17,21 +17,18 @@ class RunningState(XGameState, ConsumeHandler):
         self.font = None
         self.bonuses = None
         self.score = 0
-        self.fruit = None
         self.pellets_count = 0
         self.current_bonus = 0
+        self.fruit = None
 
     def setup(self, **persist_values):
         super().setup(**persist_values)
+
         self.level.setup_sprites(self.sprites)
         for actor in self.actors:
             self.level.spawn(actor)
 
         self.input.direction = None
-
-    def teardown(self):
-        self.persist_keys |= {'score', 'pellets_count', 'current_bonus'}
-        return super().teardown()
 
     def handle_input_event(self, event):
         super().handle_input_event(event)
@@ -60,10 +57,11 @@ class RunningState(XGameState, ConsumeHandler):
                 self.input.direction = Direction.LEFT
 
     def update(self, timedelta):
-        for actor in self.actors:
-            actor.act(timedelta, self.input, self)
-        if self.fruit:
-            self.fruit.update(timedelta)
+        self.level.update(timedelta, self.input, self)
+        # for actor in self.actors:
+        #     actor.act(timedelta, self.input, self)
+        # if self.fruit:
+        #     self.fruit.update(timedelta)
         self.dirty = True
 
     def draw(self, surface):
@@ -71,7 +69,7 @@ class RunningState(XGameState, ConsumeHandler):
         self.screen = temp
         self.level.draw(temp)
 
-        text = self.font.render(f'  score\n{self.score}', align='right')
+        text = self.font.render(f'  score\n{self.score}', align='right', color=pygame.Color(255, 184, 81))
         temp.blit(text, (0, 0))
 
         pygame.transform.smoothscale(temp, surface.get_size(), surface)
@@ -91,8 +89,8 @@ class RunningState(XGameState, ConsumeHandler):
 
     def add_pellet_count(self, count):
         self.pellets_count += count
-        # if self.pellets_count == 70 or self.pellets_count == 170:
-        #     self.fruit = self.level.spawn(self.bonuses[self.current_bonus])
-        #     self.current_bonus += 1
-        #     if self.current_bonus == len(self.bonuses):
-        #         self.current_bonus = len(self.bonuses) - 1
+        if self.pellets_count == 70 or self.pellets_count == 170:
+            self.fruit = self.level.spawn(self.bonuses[self.current_bonus])
+            self.current_bonus += 1
+            if self.current_bonus == len(self.bonuses):
+                self.current_bonus = len(self.bonuses) - 1

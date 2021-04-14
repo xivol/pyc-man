@@ -92,5 +92,8 @@ class PycManLevel(XTiledLevel):
         self.display_sprites.add(object)
         return object
 
+    def update(self, timedelta, *params):
+        self.display_sprites.update(timedelta, *params)
+
 
 

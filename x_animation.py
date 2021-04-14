@@ -1,5 +1,4 @@
 import random
-
 import pygame
 from x_sprite_factory import XSpriteFactory
 
@@ -51,7 +50,7 @@ class Animation(object):
 
 
 class BlinkingAnimation(Animation):
-    def __init__(self, image, duration=100):
+    def __init__(self, image, duration=200):
         super().__init__([image, pygame.Surface(image.get_size(), pygame.SRCALPHA)],
                          duration,
                          is_looping=True)
@@ -105,4 +104,5 @@ class AnimationManager:
 
     def update(self, timedelta):
         self.current_animation.update(timedelta)
+
 

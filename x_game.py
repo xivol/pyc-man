@@ -1,10 +1,9 @@
-import datetime
-from abc import abstractmethod
 import pygame
 import logging
 
+import x_fsm
 
-class XGame(object):
+class XGame(x_fsm.XFiniteStateManager):
     __fps__ = 60
 
     @staticmethod
@@ -22,6 +21,8 @@ class XGame(object):
         if 'logger' not in self.__class__.__dict__:
             self.__class__.logger_setup(logger)
 
+        super().__init__()
+
         pygame.init()
         pygame.font.init()
         pygame.display.set_caption(title)
@@ -30,15 +31,6 @@ class XGame(object):
 
         self.running = False
         self.exit_status = 0
-
-        self.state_dict = {}
-        self.state_name = None
-        self.state = None
-
-    def setup_states(self, state_dict, initial_state):
-        self.state_dict = state_dict
-        self.state_name = initial_state
-        self.state = self.state_dict[self.state_name]
 
     def handle_input(self):
         try:
@@ -53,21 +45,12 @@ class XGame(object):
             self.exit_status = 0
             self.running = False
 
-    def flip_state(self):
-        previous, self.state_name = self.state_name, self.state.next
-        persist_values = self.state.teardown()
-        self.state = self.state_dict[self.state_name]
-        self.state.setup(**persist_values)
-        self.state.previous = previous
-
     def update(self, deltatime):
-        if self.state.final:
+        if not self.continues():
             self.running = False
             self.exit_status = 0
-
-        elif self.state.done:
-            self.flip_state()
-        self.state.update(deltatime)
+        else:
+            self.state.update(deltatime)
 
     def run(self):
         self.running = True

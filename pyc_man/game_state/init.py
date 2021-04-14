@@ -11,22 +11,24 @@ from x_sprite_factory import XTMXSpriteFactory
 
 class InitState(XGameState):
     def __init__(self, map_file, sprites_file, font_file):
-        super().__init__()
+        super().__init__(next="Running",
+                         persists={'level',
+                                   'sprites',
+                                   'animations',
+                                   'font',
+                                   'bonuses',
+                                   'actors'})
 
         self.level = PycManLevel(map_file)
         self.sprites = XTMXSpriteFactory(sprites_file)
         self.animations = XAnimationFactory(self.sprites)
         self.font = XBMPFont(font_file)
 
-        self.bonuses = [] #[self.sprites[Fruits.sprite_name(i)].make(Fruits, order=i)
-        #                 for i in range(Fruits.count())]
+        self.bonuses = list(map(lambda x: self.sprites[x.__sprite_name__].make(x),
+                                Fruits.types()))
+
         self.actors = [
             self.animations.make(PacMan)
         ]
 
-        self.next = "Running"
         self.done = True
-
-    def teardown(self):
-        self.persist_keys |= {'level', 'sprites', 'animations', 'font', 'bonuses', 'actors'}
-        return super().teardown()

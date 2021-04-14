@@ -39,9 +39,14 @@ class XAnimationFactory(XLoggingMixin):
     def anim_sprite_names(sprite_name, anim_dict):
         return map(lambda state: '-'.join((sprite_name, state)), anim_dict.keys())
 
+    @staticmethod
+    def core_sprite_name(anim_name):
+        return '-'.join(anim_name.split('-')[:-1])
+
     def __init__(self, sprite_factory, logger=None):
-        super().__init__(logger)
+        self.__class__.logger_setup(logger)
         self.animations = dict()
+        self.sprites = sprite_factory
         self.load_animations(sprite_factory)
 
     def load_animations(self, sprite_factory):

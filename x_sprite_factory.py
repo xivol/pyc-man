@@ -30,7 +30,7 @@ class XSpriteFactory(XLoggingMixin):
         return map(lambda state: '-'.join((sprite_name, state)), anim_dict.keys())
 
     def __init__(self, logger=None):
-        super().__init__(logger)
+        self.__class__.logger_setup(logger)
         self.sprites = dict()
 
     def __getitem__(self, item):
