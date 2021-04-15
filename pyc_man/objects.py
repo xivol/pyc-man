@@ -72,7 +72,7 @@ class Fruits(XBlinkingObject, BonusMixin, SpawnableMixin):
 
     @classmethod
     def types(cls):
-        for i, name in enumerate(['Cherry', 'Strawberry', 'Orange',
+        for i, name in enumerate(['Cherry', 'Strawberry', 'Apricot',
                                  'Apple', 'Mellon', 'Galaxian', 'Bell', 'Key']):
             yield type(name, (Fruits,), {
                 '__points__': Fruits.__points__[i],

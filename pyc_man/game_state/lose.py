@@ -5,8 +5,8 @@ from pyc_man.game_state.ready import ReadyState
 
 
 class LoseState(ReadyState):
-    def __init__(self, message="uh-oh!", message_color=pygame.Color(255, 184, 81)):
-        super().__init__(subtitle=message, subtitle_color=message_color)
+    def __init__(self, message, message_color, next_state="Running"):
+        super().__init__(next_state, subtitle=message, subtitle_color=message_color)
 
         # Persistent values
         # just to silence warnings
@@ -21,7 +21,6 @@ class LoseState(ReadyState):
         for actor in self.actors:
             if isinstance(actor, PacMan):
                 self.pacman = actor
-                self.pacman.die()
             else:
                 self.level.remove(actor)
 

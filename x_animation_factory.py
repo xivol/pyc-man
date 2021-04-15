@@ -24,13 +24,12 @@ class AnimationData(SpriteData):
         self.durations.append(duration)
 
     def make(self, type, *params, **kwargs):
+        if len(self.frames) == 0:
+            return type(self.image, *params, **kwargs)
         if len(self.frames) == 1:
-            return type(self.frames[0],
-                        self.durations[0],
+            return type(self.frames[0], self.durations[0],
                         *params, **kwargs)
-        return type(self.frames,
-                    self.durations,
-                    is_looping=self.looping,
+        return type(self.frames, self.durations, is_looping=self.looping,
                     *params, **kwargs)
 
 

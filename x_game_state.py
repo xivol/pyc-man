@@ -21,7 +21,6 @@ class XGameState(XState, XLoggingMixin):
         super().setup(**persist_values)
 
     def teardown(self):
-        self.done = False
         self.logger.info("\tFinished")
         return super().teardown()
 

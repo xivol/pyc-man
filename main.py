@@ -31,7 +31,8 @@ if __name__ == '__main__':
                        "Ready": ReadyState('Running', 'Player One', 'Ready!'),
                        "Running": RunningState(),
                        "Win":  WinState('Next Level'),
-                       "Lose": LoseState("Uh-Oh!", pygame.Color(255, 184, 81))
+                       "Lose": LoseState('Uh-Oh!', pygame.Color(255, 184, 81)),
+                       "GameOver": LoseState("Game Over!", pygame.Color(255, 0, 0), 'Init')
         }
         game.setup_states(game_states, "Init")
         game.run()

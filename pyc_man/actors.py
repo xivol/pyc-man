@@ -1,12 +1,10 @@
 from abc import ABC, abstractmethod
 import pygame
-
 import x_object
-from x_animation import Animation
+from x_animation import Animation, StaticAnimation
 from x_input import Direction
 from pyc_man.objects import Wall, Gate, SpawnableMixin
 from pyc_man.directional_animator import DirectionalAnimationManager
-
 
 
 def wrap(x, y, width, height):
@@ -23,7 +21,7 @@ class ConsumeHandler:
         pass
 
 
-class Actor(x_object.XAnimatedObject, SpawnableMixin, ABC):
+class Actor(x_object.XAnimatedObject, SpawnableMixin):
     __manager_type__ = DirectionalAnimationManager
     __speed__ = 0
 
@@ -55,6 +53,7 @@ class Actor(x_object.XAnimatedObject, SpawnableMixin, ABC):
         return not isinstance(object, Wall)
 
     def make_a_move(self, move_dist, screen):
+        move_dist = int(move_dist)
         width, height = screen
         x, y = self.direction.move_point(self.rect.center, move_dist)
         self.rect.center = wrap(x, y, width, height)
@@ -71,10 +70,10 @@ class PacMan(Actor):
     __spawnpoint__ = 'pacman'
     __start_lives__ = 3
     __max_lives__ = 5
-    __speed__ = 0.2
+    __speed__ = 0.16
 
-    __animations__ = {"normal": Animation, "dead": Animation}
-    __default_state__ = "normal"
+    __animations__ = {"init":StaticAnimation, "normal": StaticAnimation, "moving": Animation, "dead": Animation}
+    __default_state__ = "init"
 
     def __init__(self, sprite_factory, *params, **kwargs):
         self.lives = self.__start_lives__
@@ -83,12 +82,21 @@ class PacMan(Actor):
 
     def act(self, time, input, game_state):
         if not self.is_alive:
+            self.animation.set_state('dead')
             return
 
-        if input.direction:
-            self.set_direction(input.direction)
-            if game_state.level.can_pass(self, self.direction.move(self.speed * time)):
-                self.make_a_move(self.speed * time, game_state.screen.get_size())
+        if not input.direction:
+            if self.animation.state == "moving":
+                self.animation.set_state("normal")
+            return
+
+        self.set_direction(input.direction)
+        dist = int(self.speed * time)
+        if game_state.level.can_pass(self, self.direction.move(dist)):
+            self.make_a_move(dist, game_state.screen.get_size())
+            self.animation.set_state("moving")
+        else:
+            self.animation.set_state("normal")
 
         impact = self.get_hit(game_state.level.collider_sprites)
         if impact and isinstance(game_state, ConsumeHandler):
@@ -98,19 +106,19 @@ class PacMan(Actor):
         return not (isinstance(object, Wall) or isinstance(object, Gate))
 
     def die(self):
-        self.animation.set_state('dead')
-        self.lives -= 1
         self.is_alive = False
+        self.act(None,None,None)
 
     def revive(self):
-        self.animation.set_state('normal')
+        self.lives -= 1
+        self.animation.set_state('init')
         self.is_alive = True
 
 
 class Ghost(Actor):
     __sprite_name__ = 'ghost'
     __spawnpoint__ = 'ghost-4'
-    __speed__ = 0.18
+    __speed__ = 0.1
 
     __animations__ = {'normal': Animation,
                       'dead': Animation,
@@ -118,15 +126,21 @@ class Ghost(Actor):
                       'frighten-timeout': Animation}
     __default_state__ = "normal"
 
+    def eats(self, target):
+        if isinstance(target, PacMan):
+            return self.get_hit_box().colliderect(target.get_hit_box())
+        return 0
+
     def act(self, time, input, game_state):
         if game_state.screen:
             self.set_direction(self.direction)
-            if game_state.level.can_pass(self, self.direction.move(self.speed * time)):
-                self.make_a_move(self.speed * time, game_state.screen.get_size())
+            dist = int(self.speed * time)
+            if game_state.level.can_pass(self, self.direction.move(dist)):
+                self.make_a_move(dist, game_state.screen.get_size())
             else:
                 d = Direction((self.direction.value + 1 ) % 4)
                 self.set_direction(Direction.random())
 
-            impact = self.get_hit(game_state.level.collider_sprites)
+            impact = self.get_hit(game_state.level.collider_sprites, collide_func=Ghost.eats)
             if impact and isinstance(game_state, ConsumeHandler):
                 game_state.on_did_consume(self, impact)

@@ -1,5 +1,5 @@
 import pygame
-from x_animation import AnimationManager, Animation
+from x_animation import AnimationManager, Animation, StaticAnimation
 
 
 class BlinkingAnimation(Animation):
@@ -7,14 +7,6 @@ class BlinkingAnimation(Animation):
         super().__init__([image, pygame.Surface(image.get_size(), pygame.SRCALPHA)],
                          duration,
                          is_looping=True)
-
-
-class StaticAnimation(Animation):
-    def __init__(self, image, duration=0):
-        super().__init__([image], duration)
-
-    def update(self, timedelta):
-        pass
 
 
 class BlinkingAnimator(AnimationManager):

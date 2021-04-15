@@ -15,13 +15,18 @@ class InitState(XGameState):
                          persists={'level',
                                    'sprites',
                                    'animations',
+                                   'actors',
+                                   'life_counter',
                                    'font',
                                    'bonuses',
-                                   'actors'})
+                                   'score'})
 
         self.level = PycManLevel(map_file)
+
         self.sprites = XTMXSpriteFactory(sprites_file)
+
         self.level.setup_sprites(self.sprites)
+
         self.animations = XAnimationFactory(self.sprites)
 
         self.bonuses = list(map(lambda x: self.sprites[x.__sprite_name__].make(x),
@@ -34,7 +39,14 @@ class InitState(XGameState):
             self.animations.make(Ghost)
         ]
 
-        self.logger.info(self.actors)
+        self.life_counter = self.sprites['pacman-normal-left'].image
 
         self.font = XBMPFont(font_file)
+
+        self.score = 0
+
+        self.done = True
+
+    def setup(self, **persist_values):
+        super().setup(**persist_values)
         self.done = True

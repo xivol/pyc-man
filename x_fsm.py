@@ -19,6 +19,7 @@ class XState(object):
         persist_values = {}
         for k in self.persist_keys:
             persist_values[k] = self.__getattribute__(k)
+        self.done = False
         return persist_values
 
 

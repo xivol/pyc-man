@@ -1,5 +1,4 @@
 import random
-import pygame
 from x_sprite_factory import XSpriteFactory
 
 
@@ -51,9 +50,18 @@ class Animation(object):
         self.time_since_flip = 0
 
     def is_finished(self):
-        return not self.is_looping and\
-            self.current_frame == len(self.images) - 1 and\
-            self.time_since_flip >= self.durations[self.current_frame]
+        return not self.is_looping and \
+               self.current_frame == len(self.images) - 1 and \
+               self.time_since_flip >= self.durations[self.current_frame]
+
+
+class StaticAnimation(Animation):
+    def __init__(self, image, *params):
+        super().__init__([image], 0)
+
+    def update(self, timedelta):
+        pass
+
 
 class AnimationManager:
     @staticmethod
@@ -95,5 +103,3 @@ class AnimationManager:
 
     def update(self, timedelta):
         self.current_animation.update(timedelta)
-
-

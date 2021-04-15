@@ -75,6 +75,9 @@ class RunningState(XGameState, ConsumeHandler):
         text = self.font.render(f'  score\n{self.score}', align='right')
         temp.blit(text, (0, 0))
 
+        for i in range(self.actors[0].lives-1):
+            temp.blit(self.life_counter, ((i + 1) * 32, (self.level.height - 2) * self.level.tile_height))
+
         pygame.transform.smoothscale(temp, surface.get_size(), surface)
 
     def on_did_consume(self, subject, target):
@@ -86,18 +89,23 @@ class RunningState(XGameState, ConsumeHandler):
                 if self.level.pellets == 0:
                     self.done = True
                     self.next = "Win"
-        elif isinstance(subject, Ghost) and isinstance(target,PacMan):
+                    self.current_bonus += 1
+                    if self.current_bonus == len(self.bonuses):
+                        self.current_bonus = len(self.bonuses) - 1
+
+        elif isinstance(subject, Ghost) and isinstance(target, PacMan):
+            target.die()
             self.done = True
-            self.next = "Lose"
+            if target.lives > 1:
+            #     self.next = "Lose"
+            # else:
+                self.next = "GameOver"
 
     def add_score(self, points):
         self.score += points
 
     def add_pellet_count(self, count):
         self.pellets_count += count
-        if (self.pellets_count == 70 or self.pellets_count == 170) and\
+        if (self.pellets_count == 70 or self.pellets_count == 170) and \
                 not self.fruit:
             self.fruit = self.level.spawn(self.bonuses[self.current_bonus])
-            self.current_bonus += 1
-            if self.current_bonus == len(self.bonuses):
-                self.current_bonus = len(self.bonuses) - 1

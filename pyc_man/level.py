@@ -77,7 +77,7 @@ class PycManLevel(XTiledLevel):
         if actor.makes_turn:
             actor.rect.center = self.stick_to_grid(actor.rect.center)
         actor.rect = actor.rect.move(direction)
-        collider = pygame.sprite.spritecollideany(actor, self.collider_sprites, XStaticObject.collided)
+        collider = actor.get_hit(self.collider_sprites)
         actor.rect = old_rect
         return actor.can_pass(collider)
 
