@@ -10,8 +10,8 @@ from x_sprite_factory import XTMXSpriteFactory
 
 
 class InitState(XGameState):
-    def __init__(self, map_file, sprites_file, font_file):
-        super().__init__(next="Running",
+    def __init__(self, map_file, sprites_file, font_file, next_state):
+        super().__init__(next=next_state,
                          persists={'level',
                                    'sprites',
                                    'animations',

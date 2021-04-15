@@ -16,6 +16,7 @@ class RunningState(XGameState, ConsumeHandler):
         self.actors = None
         self.font = None
         self.bonuses = None
+
         self.score = 0
         self.pellets_count = 0
         self.current_bonus = 0
@@ -71,8 +72,7 @@ class RunningState(XGameState, ConsumeHandler):
         temp = pygame.Surface(self.level.renderer.pixel_size)
         self.screen = temp
         self.level.draw(temp)
-
-        text = self.font.render(f'  score\n{self.score}', align='right', color=pygame.Color(255, 184, 81))
+        text = self.font.render(f'  score\n{self.score}', align='right')
         temp.blit(text, (0, 0))
 
         pygame.transform.smoothscale(temp, surface.get_size(), surface)

@@ -16,7 +16,7 @@ if __name__ == '__main__':
     import logging
     import pygame
 
-    from pyc_man.game_state import InitState, WinState, LoseState
+    from pyc_man.game_state import InitState, WinState, LoseState, ReadyState
     from pyc_man.game_state import RunningState
     from x_game import XGame
 
@@ -26,10 +26,12 @@ if __name__ == '__main__':
         game = XGame('Pyc-Man', dimensions(600, 800))
         game_states = {"Init": InitState(os.path.join('data', 'level_01.tmx'),
                                          os.path.join('data', 'sprites.tmx'),
-                                         os.path.join('data', 'font.tmx')),
+                                         os.path.join('data', 'font.tmx'),
+                                         'Ready'),
+                       "Ready": ReadyState('Running', 'Player One', 'Ready!'),
                        "Running": RunningState(),
-                       "Win":  WinState('press start to continue'),
-                       "Lose": LoseState('press start to continue')
+                       "Win":  WinState('Next Level'),
+                       "Lose": LoseState("Uh-Oh!", pygame.Color(255, 184, 81))
         }
         game.setup_states(game_states, "Init")
         game.run()

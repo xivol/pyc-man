@@ -8,6 +8,12 @@ class XTiledLevel:
         self.colliders = self.data.get_layer_by_name(self.__colliders_layer__)
         self.navigation = self.data.get_layer_by_name(self.__navigation_layer__)
 
+        self.width = tmx_data.width
+        self.tile_width = tmx_data.tilewidth
+        self.height = tmx_data.height
+        self.tile_height = tmx_data.tileheight
+
+
     def create_sprites(self, type, group, sprite_factory, sprite_name, tile_type, layer):
         gid, props = next(filter(lambda t: t[1]['type'] == tile_type,
                                  self.data.tile_properties.items()))
