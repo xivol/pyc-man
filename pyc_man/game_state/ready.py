@@ -60,10 +60,7 @@ class ReadyState(XGameState):
         level_size_surf = pygame.Surface(self.level.renderer.pixel_size)
         self.screen = level_size_surf
         self.level.draw(level_size_surf)
-
-        if 'score' in self.persist_keys:
-            text = self.font.render(f'  score\n{self.score}', align='right')
-            level_size_surf.blit(text, (0, 0))
+        self.ui.draw(level_size_surf)
 
         self.render(self.title_text, self.title_color, self.__title_rect__, level_size_surf)
         self.render(self.subtitle_text, self.subtitle_color, self.__subtitle_rect__, level_size_surf)

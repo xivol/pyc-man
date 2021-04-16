@@ -48,12 +48,12 @@ class InitState(XGameState):
         ]
 
 
-        self.life_counter = UICounter(self.sprites['pacman-normal-left'].image)
+        self.life_counter = UICounter(self.sprites['pacman-normal-left'].image, PacMan.__start_lives__)
         self.life_counter.set_position((self.level.tile_width,
                                         (self.level.height - 2) * self.level.tile_height))
 
         self.level_counter = UICounter([self.sprites[f'fruit-{i}'].image for i in range(1, 9)],
-                                       0, 6, Direction.RIGHT)
+                                       1, 6, Direction.RIGHT)
         self.level_counter.set_position(((self.level.width // 2+1) * self.level.tile_width,
                                          (self.level.height - 2) * self.level.tile_height))
 
