@@ -16,6 +16,11 @@ class LoseState(ReadyState):
 
         self.pacman = None
 
+    def handle_input_event(self, event):
+        super().handle_input_event(event)
+        if not self.pacman.animation.current().is_finished():
+            self.done = False
+
     def setup(self, **persist_values):
         super().setup(**persist_values)
         for actor in self.actors:

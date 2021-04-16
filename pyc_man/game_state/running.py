@@ -16,6 +16,9 @@ class RunningState(XGameState, ConsumeHandler):
         self.actors = None
         self.font = None
         self.bonuses = None
+        self.life_counter = None
+        self.level_counter = None
+        self.score_counter = None
 
         self.score = 0
         self.pellets_count = 0
@@ -29,7 +32,8 @@ class RunningState(XGameState, ConsumeHandler):
             if not actor.is_alive:
                 actor.revive()
             self.level.spawn(actor)
-
+        self.life_counter.set_value(self.actors[0].lives)
+        self.level_counter.set_value(self.current_bonus + 1)
         self.input.direction = None
 
     def teardown(self):
@@ -72,11 +76,12 @@ class RunningState(XGameState, ConsumeHandler):
         temp = pygame.Surface(self.level.renderer.pixel_size)
         self.screen = temp
         self.level.draw(temp)
-        text = self.font.render(f'  score\n{self.score}', align='right')
-        temp.blit(text, (0, 0))
+        self.ui.draw(temp)
+        # text = self.font.render(f'  score\n{self.score}', align='right')
+        # temp.blit(text, (0, 0))
 
-        for i in range(self.actors[0].lives-1):
-            temp.blit(self.life_counter, ((i + 1) * 32, (self.level.height - 2) * self.level.tile_height))
+        # for i in range(self.actors[0].lives-1):
+        #     temp.blit(self.life_counter, ((i + 1) * 32, (self.level.height - 2) * self.level.tile_height))
 
         pygame.transform.smoothscale(temp, surface.get_size(), surface)
 
@@ -97,12 +102,13 @@ class RunningState(XGameState, ConsumeHandler):
             target.die()
             self.done = True
             if target.lives > 1:
-            #     self.next = "Lose"
-            # else:
+                self.next = "Lose"
+            else:
                 self.next = "GameOver"
 
     def add_score(self, points):
         self.score += points
+        self.score_counter.set_value(self.score)
 
     def add_pellet_count(self, count):
         self.pellets_count += count
