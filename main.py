@@ -27,6 +27,7 @@ if __name__ == '__main__':
         game_states = {"Init": InitState(os.path.join('data', 'level_01.tmx'),
                                          os.path.join('data', 'sprites.tmx'),
                                          os.path.join('data', 'font.tmx'),
+                                         os.path.join('data', 'snd'),
                                          'Ready'),
                        "Ready": ReadyState('Running', 'Player One', 'Ready!'),
                        "Running": RunningState(),

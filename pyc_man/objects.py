@@ -17,6 +17,7 @@ class Gate(XStaticObject):
 
 class BonusMixin:
     __points__ = None
+    __sound__ = None
 
     @classmethod
     def points(cls):
@@ -34,7 +35,7 @@ class SpawnableMixin:
 class Pellet(XStaticObject, BonusMixin):
     __sprite_name__ = 'pellet'
     __points__ = 10
-
+    __sound__ = 'waka'
     def get_hit_box(self):
         hit_box = pygame.Rect(0, 0, self.rect.width // 3, self.rect.height // 3)
         hit_box.center = self.rect.center
@@ -52,6 +53,7 @@ class Energizer(XBlinkingObject, BonusMixin):
     __sprite_name__ = 'energizer'
     __default_state__ = "blinking"
     __points__ = 50
+    __sound__ = 'waka'
 
     def get_hit_box(self):
         hit_box = pygame.Rect(0, 0, self.rect.width // 2, self.rect.height // 2)
@@ -64,6 +66,7 @@ class Fruits(XBlinkingObject, BonusMixin, SpawnableMixin):
     __sprite_name__ = 'fruit'
     __default_state__ = "normal"
     __spawnpoint__ = 'fruit'
+    __sound__ = 'fruit'
 
     def get_hit_box(self):
         hit_box = pygame.Rect(0, 0, self.rect.width // 2, self.rect.height // 2)

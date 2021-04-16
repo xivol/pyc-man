@@ -20,14 +20,12 @@ class XStaticObject(pygame.sprite.Sprite):
     def sprite_name(cls):
         return cls.__sprite_name__
 
-
     def get_hit_box(self):
         return self.rect
 
-    def get_hit(self, colliders, collide_func=is_collided ):
+    def get_hit(self, colliders, collide_func=is_collided):
         if self in colliders.sprites():
             colliders.remove(self)
-
             hit = pygame.sprite.spritecollideany(self, colliders, collide_func)
             colliders.add(self)
         else:

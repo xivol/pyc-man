@@ -1,6 +1,7 @@
+import os
+
 import pygame
 from x_game_state import XGameState
-
 
 def get(text, color):
     if not text:
@@ -29,19 +30,31 @@ def pad(text, width):
 class ReadyState(XGameState):
     __title_rect__ = pygame.Rect(9, 14, 10, 1)
     __subtitle_rect__ = pygame.Rect(9, 20, 10, 1)
+    __on_startup__ = 'ready'
 
     def __init__(self, next_state="Running", title=None, subtitle=None, **kwargs):
-        super().__init__()
+        super().__init__(next_state)
         self.title_text, self.title_color = get(title, kwargs.get('title_color', pygame.Color(0, 255, 255)))
         self.title_text = pad(self.title_text, self.__title_rect__.width)
 
         self.subtitle_text, self.subtitle_color = get(subtitle, kwargs.get('subtitle_color', pygame.Color(255, 255, 0)))
         self.subtitle_text = pad(self.subtitle_text, self.__subtitle_rect__.width)
-        self.next = next_state
 
         # Persistent values
         self.level = None
         self.font = None
+        self.ui = None
+        self.sound = None
+
+    def setup(self, **persist_values):
+        super().setup(**persist_values)
+        if self.__on_startup__:
+            self.music = self.sounds[self.__on_startup__]
+            self.music.play(fade_ms=100)
+
+    def teardown(self):
+        self.music.fadeout(1000)
+        return super().teardown()
 
     def handle_input_event(self, event):
         super().handle_input_event(event)

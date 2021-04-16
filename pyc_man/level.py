@@ -81,6 +81,9 @@ class PycManLevel(XTiledLevel):
         actor.rect = old_rect
         return actor.can_pass(collider)
 
+    def get_hit(self, actor):
+        return actor.get_hit(self.collider_sprites, collide_func=actor.__class__.can_eat)
+
     def remove(self, object):
         self.collider_sprites.remove(object)
         #if isinstance(object, BonusMixin):

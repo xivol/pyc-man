@@ -6,6 +6,7 @@ from x_game_state import XGameState
 
 
 class WinState(ReadyState):
+    __on_startup__ = "intermission"
     def __init__(self, message):
         if len(message) > 10:
             title = message[:10].strip()

@@ -5,6 +5,8 @@ from pyc_man.game_state.ready import ReadyState
 
 
 class LoseState(ReadyState):
+    __on_startup__ = 'death'
+
     def __init__(self, message, message_color, next_state="Running"):
         super().__init__(next_state, subtitle=message, subtitle_color=message_color)
 

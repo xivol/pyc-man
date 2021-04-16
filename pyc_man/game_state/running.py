@@ -1,6 +1,6 @@
 import pygame
 
-from pyc_man.objects import BonusMixin, Pellet, Energizer
+from pyc_man.objects import BonusMixin, Pellet, Energizer, Fruits
 from pyc_man.actors import PacMan, ConsumeHandler, Ghost
 from x_game_state import XGameState
 from x_input import Direction
@@ -16,6 +16,8 @@ class RunningState(XGameState, ConsumeHandler):
         self.actors = None
         self.font = None
         self.bonuses = None
+        self.sounds = None
+        self.ui = None
         self.life_counter = None
         self.level_counter = None
         self.score_counter = None
@@ -32,7 +34,7 @@ class RunningState(XGameState, ConsumeHandler):
             if not actor.is_alive:
                 actor.revive()
             self.level.spawn(actor)
-        self.life_counter.set_value(self.actors[0].lives)
+        self.life_counter.set_value(self.actors[0].extra_lives)
         self.level_counter.set_value(self.current_bonus + 1)
         self.input.direction = None
 
@@ -77,16 +79,12 @@ class RunningState(XGameState, ConsumeHandler):
         self.screen = temp
         self.level.draw(temp)
         self.ui.draw(temp)
-        # text = self.font.render(f'  score\n{self.score}', align='right')
-        # temp.blit(text, (0, 0))
-
-        # for i in range(self.actors[0].lives-1):
-        #     temp.blit(self.life_counter, ((i + 1) * 32, (self.level.height - 2) * self.level.tile_height))
 
         pygame.transform.smoothscale(temp, surface.get_size(), surface)
 
     def on_did_consume(self, subject, target):
         if isinstance(subject, PacMan) and isinstance(target, BonusMixin):
+            subject.make_sound(self.sounds, target)
             self.add_score(target.points())
             self.level.remove(target)
             if isinstance(target, Pellet) or isinstance(target, Energizer):
@@ -101,7 +99,7 @@ class RunningState(XGameState, ConsumeHandler):
         elif isinstance(subject, Ghost) and isinstance(target, PacMan):
             target.die()
             self.done = True
-            if target.lives > 1:
+            if target.extra_lives > 0:
                 self.next = "Lose"
             else:
                 self.next = "GameOver"
@@ -112,6 +110,8 @@ class RunningState(XGameState, ConsumeHandler):
 
     def add_pellet_count(self, count):
         self.pellets_count += count
-        if (self.pellets_count == 70 or self.pellets_count == 170) and \
-                not self.fruit:
-            self.fruit = self.level.spawn(self.bonuses[self.current_bonus])
+        if self.pellets_count == 70 or self.pellets_count == 170:
+            if not self.fruit:
+                self.fruit = self.level.spawn(self.bonuses[self.current_bonus])
+            elif not self.fruit.alive():
+                self.fruit = self.level.spawn(self.bonuses[self.current_bonus])
