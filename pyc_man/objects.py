@@ -28,6 +28,9 @@ class SpawnableMixin:
     def spawnpoint(cls):
         return cls.__spawnpoint__
 
+    def on_despawn(self, level):
+        pass
+
 
 class Pellet(XStaticObject, BonusMixin):
     __sprite_name__ = 'pellet'

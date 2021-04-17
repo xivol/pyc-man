@@ -3,7 +3,7 @@ import pygame
 import x_object
 from x_animation import Animation, StaticAnimation
 from x_input import Direction
-from pyc_man.objects import Wall, Gate, SpawnableMixin, Fruits, BonusMixin
+from pyc_man.objects import Wall, Gate, SpawnableMixin, BonusMixin
 from pyc_man.directional_animator import DirectionalAnimationManager
 
 
@@ -31,6 +31,7 @@ class Actor(x_object.XAnimatedObject, SpawnableMixin):
         self.direction = None
         self.makes_turn = False
         self.is_alive = True
+        self.sound = None
         self.set_direction(Direction.default())
 
     def act(self, time, input, game_state):
@@ -83,6 +84,10 @@ class Actor(x_object.XAnimatedObject, SpawnableMixin):
         hit_box.center = self.rect.center
         return hit_box
 
+    def on_despawn(self, level):
+        if self.sound:
+            self.sound.stop()
+
 
 class PacMan(Actor):
     __sprite_name__ = 'pacman'
@@ -128,7 +133,7 @@ class PacMan(Actor):
         if isinstance(eaten, BonusMixin):
             sound = sounds[eaten.__sound__]
             if sound.get_num_channels() < 1:
-                sound.play(fade_ms=100)
+                self.sound = sound.play(fade_ms=100)
 
     def die(self):
         self.is_alive = False
@@ -170,4 +175,4 @@ class Ghost(Actor):
 
     def make_sound(self, sounds, event=None):
         if sounds[self.__sound__].get_num_channels() < 1:
-            sounds[self.__sound__].play()
+            self.sound = sounds[self.__sound__].play()
