@@ -9,7 +9,12 @@ class Wall(XStaticObject):
 
 
 class Gate(XStaticObject):
-    pass
+    __sprite_name__ = 'gate'
+
+    def get_hit_box(self):
+        hit_box = pygame.Rect(0, 0, self.rect.width // 3, self.rect.height // 3)
+        hit_box.center = self.rect.center
+        return hit_box
 
 
 class BonusMixin:

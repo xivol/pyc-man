@@ -2,8 +2,8 @@
 <map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="left-down" width="1" height="1" tilewidth="32" tileheight="32" infinite="1" nextlayerid="2" nextobjectid="1">
  <tileset firstgid="1" name="sprites32" tilewidth="32" tileheight="32" tilecount="169" columns="13">
   <image source="img/sprites32.png" trans="000000" width="416" height="416"/>
-  <tile id="2" type="pacman-init"/>
   <tile id="1" type="pacman-normal-right"/>
+  <tile id="2" type="pacman-init"/>
   <tile id="3" type="pacman-normal-left"/>
   <tile id="6" type="pacman-normal-up"/>
   <tile id="8" type="pacman-normal-down"/>
@@ -70,7 +70,7 @@
    </animation>
   </tile>
   <tile id="34" type="ghost-normal-right">
-  <properties>
+   <properties>
     <property name="looping" type="bool" value="true"/>
    </properties>
    <animation>
@@ -79,7 +79,7 @@
    </animation>
   </tile>
   <tile id="35" type="ghost-normal-down">
-  <properties>
+   <properties>
     <property name="looping" type="bool" value="true"/>
    </properties>
    <animation>
@@ -88,7 +88,7 @@
    </animation>
   </tile>
   <tile id="36" type="ghost-normal-left">
-  <properties>
+   <properties>
     <property name="looping" type="bool" value="true"/>
    </properties>
    <animation>
@@ -97,7 +97,7 @@
    </animation>
   </tile>
   <tile id="37" type="ghost-normal-up">
-  <properties>
+   <properties>
     <property name="looping" type="bool" value="true"/>
    </properties>
    <animation>
@@ -178,7 +178,7 @@
    </animation>
   </tile>
   <tile id="86" type="ghost-dead-right">
-  <properties>
+   <properties>
     <property name="looping" type="bool" value="true"/>
    </properties>
    <animation>
@@ -187,7 +187,7 @@
    </animation>
   </tile>
   <tile id="87" type="ghost-dead-down">
-  <properties>
+   <properties>
     <property name="looping" type="bool" value="true"/>
    </properties>
    <animation>
@@ -196,7 +196,7 @@
    </animation>
   </tile>
   <tile id="88" type="ghost-dead-left">
-  <properties>
+   <properties>
     <property name="looping" type="bool" value="true"/>
    </properties>
    <animation>
@@ -205,7 +205,7 @@
    </animation>
   </tile>
   <tile id="89" type="ghost-dead-up">
-  <properties>
+   <properties>
     <property name="looping" type="bool" value="true"/>
    </properties>
    <animation>
@@ -214,7 +214,7 @@
    </animation>
   </tile>
   <tile id="95" type="ghost-frighten-normal">
-  <properties>
+   <properties>
     <property name="looping" type="bool" value="true"/>
    </properties>
    <animation>
@@ -223,7 +223,7 @@
    </animation>
   </tile>
   <tile id="96" type="ghost-frighten-timeout">
-  <properties>
+   <properties>
     <property name="looping" type="bool" value="true"/>
    </properties>
    <animation>
@@ -243,6 +243,7 @@
   <tile id="111" type="fruit-8"/>
   <tile id="117" type="energizer"/>
   <tile id="118" type="pellet"/>
+  <tile id="119" type="gate"/>
   <tile id="130" type="200"/>
   <tile id="131" type="400"/>
   <tile id="132" type="800"/>

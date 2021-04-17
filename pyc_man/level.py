@@ -66,7 +66,7 @@ class PycManLevel(XTiledLevel):
 
         self.display_sprites = pygame.sprite.Group()
         for g in map(lambda x: groups[x[0]],
-                     filter(lambda x: issubclass(x[1], BonusMixin),
+                     filter(lambda x: not not x[1].sprite_name(),
                             self.__collider_types__.items())):
             self.display_sprites.add(*g.sprites())
 
