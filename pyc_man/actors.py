@@ -89,7 +89,7 @@ class PacMan(Actor):
     __spawnpoint__ = 'pacman'
     __start_lives__ = 2
     __max_lives__ = 5
-    __speed__ = 0.16
+    __speed__ = 0.1
 
     __animations__ = {"init": StaticAnimation,
                       "normal": StaticAnimation,

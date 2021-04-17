@@ -36,6 +36,7 @@ class Pellet(XStaticObject, BonusMixin):
     __sprite_name__ = 'pellet'
     __points__ = 10
     __sound__ = 'waka'
+
     def get_hit_box(self):
         hit_box = pygame.Rect(0, 0, self.rect.width // 3, self.rect.height // 3)
         hit_box.center = self.rect.center
