@@ -11,6 +11,7 @@ from x_object import XStaticObject
 
 class PycManLevel(XTiledLevel):
     __spawnpoint_type__ = 'spawnpoint'
+    __blinking_layer__ = 'blink'
 
     __collider_types__ = {
         'wall': Wall,
@@ -27,6 +28,13 @@ class PycManLevel(XTiledLevel):
         for obj in self.data.objects:
             if obj.type == self.__spawnpoint_type__:
                 self.spawnpoints[obj.name] = (obj.x, obj.y)
+
+        blinking_layer = self.data.get_layer_by_name(self.__blinking_layer__)
+        if blinking_layer:
+            self.blinking_layer = blinking_layer
+            self.is_blinking = False
+            self.time_since_blink = 0
+            self.blink_duration = blinking_layer.properties['blink_duration']
 
     @property
     def pellets(self):
@@ -98,6 +106,20 @@ class PycManLevel(XTiledLevel):
 
     def update(self, timedelta, *params):
         self.display_sprites.update(timedelta, *params)
+        if self.is_blinking:
+            self.blink(timedelta)
+
+    def blink(self, timedelta):
+        self.time_since_blink += timedelta
+        if self.time_since_blink >= self.blink_duration:
+            self.blinking_layer.visible = not self.blinking_layer.visible
+            self.time_since_blink = 0
+
+    def set_blinking(self, is_blinking):
+        if self.is_blinking != is_blinking:
+            self.is_blinking = is_blinking
+            self.time_since_blink = 0
+            self.blinking_layer.visible = is_blinking
 
 
 

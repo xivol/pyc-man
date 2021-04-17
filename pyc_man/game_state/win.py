@@ -28,6 +28,11 @@ class WinState(ReadyState):
         self.level.clear_sprites()
         self.pellets_count = 0
         self.level.setup_sprites(self.sprites)
+        self.level.set_blinking(False)
         for actor in self.actors:
             actor.speed *= 1.1
         return super().teardown()
+
+    def update(self, timedelta):
+        self.level.blink(timedelta)
+        self.dirty = True

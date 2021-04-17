@@ -1,10 +1,7 @@
-from enum import Enum
-
 import pygame
 
 from pyc_man.blinking_animator import BlinkingAnimator
 from x_object import XStaticObject, XAnimatedObject
-from x_animation import *
 
 
 class Wall(XStaticObject):

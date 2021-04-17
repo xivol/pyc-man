@@ -11,19 +11,26 @@ class UIText(x_ui.XUI):
         self.align = align
         self.color = color
         self.font = font
+        self.__render__()
+
+    def __render__(self):
+        self.image = self.font.render(self.text, align=self.align, color=self.color)
+        self.rect = self.image.get_rect()
 
 
 class UIScoreCounter(UIText):
     def __init__(self, format_string, value, font, color=None, align='left',  *groups):
+        self.value = value
         super().__init__(format_string, font, color, align, *groups)
-        self.value = None
-        self.set_value(value)
 
     def set_value(self, new_value):
         if self.value != new_value:
             self.value = new_value
-            self.image = self.font.render(self.text.format(self.value), align= self.align, color=self.color)
-            self.rect = self.image.get_rect()
+            self.__render__()
+
+    def __render__(self):
+        self.image = self.font.render(self.text.format(self.value), align= self.align, color=self.color)
+        self.rect = self.image.get_rect()
 
 
 class UICounter(x_ui.XUI):
@@ -64,9 +71,6 @@ class UICounter(x_ui.XUI):
 
     def get_count_image(self, count):
         return self.images[count % len(self.images)]
-
-class UILivesCounter(x_ui.XUI):
-    pass
 
 
 class UILevelsCounter(UICounter):
