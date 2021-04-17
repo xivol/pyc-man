@@ -89,7 +89,7 @@ class PacMan(Actor):
     __spawnpoint__ = 'pacman'
     __start_lives__ = 2
     __max_lives__ = 5
-    __speed__ = 0.1
+    __speed__ = 0.16
 
     __animations__ = {"init": StaticAnimation,
                       "normal": StaticAnimation,
@@ -110,8 +110,6 @@ class PacMan(Actor):
             if self.animation.state == "moving":
                 self.animation.set_state("normal")
             return
-
-        super().act(time, input, game_state)
 
         self.set_direction(input.direction)
         super().act(time, input, game_state)

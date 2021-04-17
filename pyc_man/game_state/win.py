@@ -1,5 +1,6 @@
 import pygame
 
+from pyc_man.actors import PacMan
 from pyc_man.game_state import RunningState
 from pyc_man.game_state.ready import ReadyState
 from x_game_state import XGameState
@@ -23,6 +24,12 @@ class WinState(ReadyState):
         self.sprites = None
         self.actors = None
         self.pellets_count = 0
+
+    def setup(self, **persist_values):
+        super().setup(**persist_values)
+        for actor in self.actors:
+            if not isinstance(actor, PacMan):
+                self.level.remove(actor)
 
     def teardown(self):
         self.level.clear_sprites()
