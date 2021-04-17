@@ -58,9 +58,12 @@ class InitState(XGameState):
                                          (self.level.height - 2) * self.level.tile_height))
 
         self.score_counter = UIScoreCounter('  score\n{}', 0, self.font, None, 'right')
-        self.score = 0
 
         self.ui = pygame.sprite.Group()
         self.ui.add(self.life_counter, self.level_counter, self.score_counter)
+
+        self.score = 0
+        self.current_bonus = 0
+        self.pellets_count = 0
 
         self.done = True
