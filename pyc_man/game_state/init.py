@@ -1,5 +1,6 @@
 import pygame
 
+from pyc_man.behavior import NormalPacMan, DyingPacMan, MovingPacMan
 from pyc_man.level import PycManLevel
 from pyc_man.objects import Fruits
 from pyc_man.actors import PacMan, Ghost
@@ -42,11 +43,18 @@ class InitState(XGameState):
         for b in self.bonuses:
             self.logger.info("fruit: %s %d", b, b.points())
 
+        pacman = self.animations.make(PacMan)
+        pacman.setup_behaviors({
+            'init': NormalPacMan('init'),
+            'normal': NormalPacMan('normal'),
+            'dying': DyingPacMan('dead', sound='death'),
+            'moving': MovingPacMan(0.16, 'moving')
+        }, 'init')
+
         self.actors = [
-            self.animations.make(PacMan),
+            pacman,
             self.animations.make(Ghost)
         ]
-
 
         self.life_counter = UICounter(self.sprites['pacman-normal-left'].image, PacMan.__start_lives__)
         self.life_counter.set_position((self.level.tile_width,

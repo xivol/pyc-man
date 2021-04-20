@@ -84,7 +84,7 @@ class RunningState(XGameState, ConsumeHandler):
 
     def on_did_consume(self, subject, target):
         if isinstance(subject, PacMan) and isinstance(target, BonusMixin):
-            subject.make_sound(self.sounds, target)
+            subject.make_sound(self.sounds, target.__sound__)
             self.add_score(target.points())
             self.level.remove(target)
             if isinstance(target, Pellet) or isinstance(target, Energizer):

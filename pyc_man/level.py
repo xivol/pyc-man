@@ -1,12 +1,11 @@
-from itertools import product
-
 import pygame
+from itertools import product
 
 from pyc_man.actors import Ghost
 from pyc_man.objects import Wall, Pellet, Energizer, Gate, BonusMixin, SpawnableMixin
-from tiled_renderer import TiledRenderer
 from x_level import XTiledLevel
 from x_object import XStaticObject
+from tiled_renderer import TiledRenderer
 
 
 class PycManLevel(XTiledLevel):
@@ -87,7 +86,7 @@ class PycManLevel(XTiledLevel):
         actor.rect = actor.rect.move(direction)
         collider = actor.get_hit(self.collider_sprites)
         actor.rect = old_rect
-        return actor.can_pass(collider)
+        return actor.behavior.can_pass(collider)
 
     def get_hit(self, actor):
         return actor.get_hit(self.collider_sprites, collide_func=actor.__class__.can_eat)
