@@ -1,15 +1,10 @@
 from abc import abstractmethod, ABC
 import x_actor
+# from pyc_man.actors import Ghost
+from pyc_man.actors import PacMan, Ghost
 
 from pyc_man.objects import Wall, Gate, BonusMixin
-
-
-def wrap(x, y, width, height):
-    if not 0 <= x < width:
-        x = (x + width) % width
-    if not 0 <= y < height:
-        y = (y + height) % height
-    return x, y
+from x_input import Direction
 
 
 class ConsumeHandler:
@@ -19,29 +14,31 @@ class ConsumeHandler:
 
 
 class Moving(x_actor.XBehavior):
-    def __init__(self, speed, animation):
-        super().__init__(animation, persists={'speed'})
+    def __init__(self, speed, animation, persists=set()):
+        super().__init__(animation, persists=persists | {'speed'})
         self.speed = speed
 
     def enact(self, actor, timedelta, world):
         dist = int(self.speed * timedelta)
         if world.level.can_pass(actor, actor.direction.move(dist)):
-            self.make_a_move(actor, dist, world.screen.get_size())
+            self.make_a_move(actor, dist, world.level)
         else:
             self.dont_make_a_move(actor, world)
 
         impact = world.level.get_hit(actor)
-        if impact and isinstance(world, ConsumeHandler):
+        if self.can_eat(impact) and isinstance(world, ConsumeHandler):
             world.on_did_consume(actor, impact)
 
     def can_pass(self, object):
         return not isinstance(object, Wall)
 
-    def make_a_move(self, actor, move_dist, screen):
+    def can_eat(self, object):
+        return False
+
+    def make_a_move(self, actor, move_dist, level):
         move_dist = int(move_dist)
-        width, height = screen
         x, y = actor.direction.move_point(actor.rect.center, move_dist)
-        actor.rect.center = wrap(x, y, width, height)
+        actor.rect.center = level.wrap(x, y)
         actor.makes_turn = False
 
     def dont_make_a_move(self, actor, world):
@@ -60,8 +57,6 @@ class DyingPacMan(x_actor.XBehavior):
         super().__init__(animation)
         self.sound = sound
 
-    def enact(self, actor, timedelta, world):
-        actor.make_sound(world.sounds, self.sound)
 
 class MovingPacMan(Moving):
     def handle_input(self, actor, timedelta, input, world_state):
@@ -72,7 +67,13 @@ class MovingPacMan(Moving):
             actor.set_direction(input.direction)
 
     def can_pass(self, object):
-        return not isinstance(object, Wall) and not isinstance(object, Gate)
+        return not isinstance(object, Wall) and \
+               not isinstance(object, Gate)
+
+    def can_eat(self, object):
+        return isinstance(object, BonusMixin) or \
+               (isinstance(object, Ghost) and
+                isinstance(object.behavior, FrightGhost))
 
     def make_a_move(self, actor, move_dist, screen):
         actor.animation.set_state(self.animation)
@@ -84,16 +85,36 @@ class MovingPacMan(Moving):
 
 
 class ChaseGhost(Moving):
-    def enact(self, actor, timedelta, world_state):
-        pass
+    def dont_make_a_move(self, actor, world):
+        actor.set_direction(Direction.random())
+
+    def can_eat(self, object):
+        return isinstance(object, PacMan)
 
 
 class FrightGhost(Moving):
-    def enact(self, actor, timedelta, world_state):
-        pass
+    def __init__(self, animation, duration):
+        super().__init__(0, animation, persists={'fright_duration'})
+        self.fright_duration = duration
+        self.time_since_start = 0
+
+    def dont_make_a_move(self, actor, world):
+        actor.set_direction(Direction.random())
+
+    def enter(self, actor):
+        super().enter(actor)
+        actor.set_direction(Direction.opposite(actor.direction))
+        self.time_since_start = 0
+
+    def enact(self, actor, timedelta, world):
+        self.time_since_start += timedelta
+        if self.time_since_start > self.fright_duration:
+            self.done = True
+            self.next = 'chase'
+        else:
+            super().enact(actor, timedelta, world)
 
 
 class DeadGhost(Moving):
     def enact(self, actor, timedelta, world_state):
         pass
-

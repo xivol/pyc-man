@@ -1,6 +1,6 @@
 import pygame
 
-from pyc_man.behavior import NormalPacMan, DyingPacMan, MovingPacMan
+from pyc_man.behaviors import NormalPacMan, DyingPacMan, MovingPacMan, ChaseGhost, FrightGhost
 from pyc_man.level import PycManLevel
 from pyc_man.objects import Fruits
 from pyc_man.actors import PacMan, Ghost
@@ -48,12 +48,17 @@ class InitState(XGameState):
             'init': NormalPacMan('init'),
             'normal': NormalPacMan('normal'),
             'dying': DyingPacMan('dead', sound='death'),
-            'moving': MovingPacMan(0.16, 'moving')
+            'moving': MovingPacMan(PacMan.__speed__, 'moving')
         }, 'init')
+        ghost = self.animations.make(Ghost)
+        ghost.setup_behaviors({
+            "chase": ChaseGhost(Ghost.__speed__, "normal"),
+            "fright": FrightGhost("frighten-normal", 1000)
+        }, "chase")
 
         self.actors = [
             pacman,
-            self.animations.make(Ghost)
+            ghost
         ]
 
         self.life_counter = UICounter(self.sprites['pacman-normal-left'].image, PacMan.__start_lives__)

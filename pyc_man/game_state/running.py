@@ -1,7 +1,8 @@
 import pygame
 
+from pyc_man.behaviors import ConsumeHandler, ChaseGhost
 from pyc_man.objects import BonusMixin, Pellet, Energizer, Fruits
-from pyc_man.actors import PacMan, ConsumeHandler, Ghost
+from pyc_man.actors import PacMan, Ghost
 from x_game_state import XGameState
 from x_input import Direction
 
@@ -89,6 +90,11 @@ class RunningState(XGameState, ConsumeHandler):
             self.level.remove(target)
             if isinstance(target, Pellet) or isinstance(target, Energizer):
                 self.add_pellet_count(1)
+                if isinstance(target, Energizer):
+                    for actor in self.actors:
+                        if isinstance(actor.behavior, ChaseGhost):
+                            actor.state.done = True
+                            actor.state.next = 'fright'
                 if self.level.pellets == 0:
                     self.done = True
                     self.next = "Win"

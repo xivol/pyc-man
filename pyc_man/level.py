@@ -79,6 +79,14 @@ class PycManLevel(XTiledLevel):
         return (position[0] // tw * tw + tw // 2,
                 position[1] // th * th + th // 2)
 
+    def wrap(self, x, y):
+        width, height = self.renderer.pixel_size
+        if not 0 <= x < width:
+            x = (x + width) % width
+        if not 0 <= y < height:
+            y = (y + height) % height
+        return x, y
+
     def can_pass(self, actor, direction):
         old_rect = actor.rect
         if actor.makes_turn:
@@ -89,7 +97,7 @@ class PycManLevel(XTiledLevel):
         return actor.behavior.can_pass(collider)
 
     def get_hit(self, actor):
-        return actor.get_hit(self.collider_sprites, collide_func=actor.__class__.can_eat)
+        return actor.get_hit(self.collider_sprites)
 
     def remove(self, object):
         self.collider_sprites.remove(object)
