@@ -1,3 +1,5 @@
+from enum import Enum
+
 import pygame
 import x_object
 from pyc_man import behaviors
@@ -54,6 +56,12 @@ class PacMan(PMActor):
                       "dead": Animation}
     __default_state__ = "init"
 
+    class Behavior(Enum):
+        ROUND = 'init'
+        STILL = 'normal'
+        MOVE = 'moving'
+        DEAD = 'dead'
+
     def __init__(self, sprite_factory, *params, **kwargs):
         self.extra_lives = self.__start_lives__
         super().__init__(sprite_factory, *params, **kwargs)
@@ -67,19 +75,20 @@ class PacMan(PMActor):
         return not isinstance(self.state, behaviors.DyingPacMan)
 
     def die(self):
-        self.state.next = 'dying'
+        self.state.next = PacMan.Behavior.DEAD
         self.state.done = True
 
     def revive(self):
         self.extra_lives -= 1
-        self.state.next = 'init'
+        self.state.next = PacMan.Behavior.ROUND
         self.state.done = True
 
 
-class Ghost(PMActor):
+class Ghost(PMActor, BonusMixin):
     __sprite_name__ = 'ghost'
     __spawnpoint__ = 'ghost-4'
     __speed__ = 0.1
+    __points__ = 200
 
     __animations__ = {'normal': Animation,
                       'dead': Animation,
@@ -88,3 +97,8 @@ class Ghost(PMActor):
     __default_state__ = "normal"
 
     __sound__ = 'ghost'
+
+    class Behavior(Enum):
+        CHASE = 'chase'
+        FRIGHT = 'fright'
+        DEAD = 'dead'

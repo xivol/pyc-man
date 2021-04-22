@@ -29,6 +29,12 @@ class XActor(x_object.XAnimatedObject, x_fsm.XFiniteStateManager):
     def behavior(self):
         return self.state
 
+    def change_behavior(self, behavior_name):
+        if behavior_name not in self.state_dict:
+            raise Exception()
+        self.state.done = True
+        self.state.next = behavior_name
+
     def setup_behaviors(self, behaviors, init_behavior):
         super().setup_states(behaviors, init_behavior)
         self.state.enter(self)

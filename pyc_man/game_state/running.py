@@ -8,8 +8,8 @@ from x_input import Direction
 
 
 class RunningState(XGameState, ConsumeHandler):
-    def __init__(self):
-        super().__init__(persists={'score', 'pellets_count', 'current_bonus'})
+    def __init__(self, persists=set()):
+        super().__init__(persists=persists | {'score', 'pellets_count', 'current_bonus'})
 
         # Persistent values
         self.level = None
@@ -85,7 +85,6 @@ class RunningState(XGameState, ConsumeHandler):
 
     def on_did_consume(self, subject, target):
         if isinstance(subject, PacMan) and isinstance(target, BonusMixin):
-            subject.make_sound(self.sounds, target.__sound__)
             self.add_score(target.points())
             self.level.remove(target)
             if isinstance(target, Pellet) or isinstance(target, Energizer):
@@ -101,7 +100,6 @@ class RunningState(XGameState, ConsumeHandler):
                     self.current_bonus += 1
                     if self.current_bonus == len(self.bonuses):
                         self.current_bonus = len(self.bonuses) - 1
-
         elif isinstance(subject, Ghost) and isinstance(target, PacMan):
             target.die()
             self.done = True

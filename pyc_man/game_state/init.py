@@ -45,16 +45,16 @@ class InitState(XGameState):
 
         pacman = self.animations.make(PacMan)
         pacman.setup_behaviors({
-            'init': NormalPacMan('init'),
-            'normal': NormalPacMan('normal'),
-            'dying': DyingPacMan('dead', sound='death'),
-            'moving': MovingPacMan(PacMan.__speed__, 'moving')
-        }, 'init')
+            PacMan.Behavior.ROUND: NormalPacMan('init'),
+            PacMan.Behavior.STILL: NormalPacMan('normal'),
+            PacMan.Behavior.DEAD: DyingPacMan('dead', sound='death'),
+            PacMan.Behavior.MOVE: MovingPacMan(PacMan.__speed__, 'moving')
+        }, PacMan.Behavior.ROUND)
         ghost = self.animations.make(Ghost)
         ghost.setup_behaviors({
-            "chase": ChaseGhost(Ghost.__speed__, "normal"),
-            "fright": FrightGhost("frighten-normal", 1000)
-        }, "chase")
+            Ghost.Behavior.CHASE: ChaseGhost(Ghost.__speed__, "normal"),
+            Ghost.Behavior.FRIGHT: FrightGhost("frighten-normal", 5)
+        }, Ghost.Behavior.CHASE)
 
         self.actors = [
             pacman,

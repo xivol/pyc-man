@@ -1,10 +1,9 @@
-from abc import abstractmethod, ABC
-import x_actor
-# from pyc_man.actors import Ghost
-from pyc_man.actors import PacMan, Ghost
+from abc import abstractmethod
 
-from pyc_man.objects import Wall, Gate, BonusMixin
+import x_actor
 from x_input import Direction
+from pyc_man.actors import PacMan, Ghost
+from pyc_man.objects import Wall, Gate, BonusMixin
 
 
 class ConsumeHandler:
@@ -25,9 +24,10 @@ class Moving(x_actor.XBehavior):
         else:
             self.dont_make_a_move(actor, world)
 
-        impact = world.level.get_hit(actor)
-        if self.can_eat(impact) and isinstance(world, ConsumeHandler):
-            world.on_did_consume(actor, impact)
+        target = world.level.get_hit(actor)
+        if self.can_eat(target) and isinstance(world, ConsumeHandler):
+            # actor.make_sound(world.sounds, target.__sound__)
+            world.on_did_consume(actor, target)
 
     def can_pass(self, object):
         return not isinstance(object, Wall)
@@ -93,10 +93,9 @@ class ChaseGhost(Moving):
 
 
 class FrightGhost(Moving):
-    def __init__(self, animation, duration):
-        super().__init__(0, animation, persists={'fright_duration'})
-        self.fright_duration = duration
-        self.time_since_start = 0
+    def __init__(self, animation):
+        super().__init__(0, animation)
+        self.timeout = False
 
     def dont_make_a_move(self, actor, world):
         actor.set_direction(Direction.random())
@@ -104,17 +103,16 @@ class FrightGhost(Moving):
     def enter(self, actor):
         super().enter(actor)
         actor.set_direction(Direction.opposite(actor.direction))
-        self.time_since_start = 0
+        self.timeout = False
+
+    def start_timeout(self):
+        self.timeout = True
 
     def enact(self, actor, timedelta, world):
-        self.time_since_start += timedelta
-        if self.time_since_start > self.fright_duration:
-            self.done = True
-            self.next = 'chase'
-        else:
-            super().enact(actor, timedelta, world)
+        if self.timeout:
+            actor.animation.set_state('frighten-timeout')
+        super().enact(actor, timedelta, world)
 
 
 class DeadGhost(Moving):
-    def enact(self, actor, timedelta, world_state):
-        pass
+    pass
