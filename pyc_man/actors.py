@@ -84,11 +84,15 @@ class PacMan(PMActor):
         self.state.done = True
 
 
-class Ghost(PMActor, BonusMixin):
+class Ghost(PMActor):
     __sprite_name__ = 'ghost'
     __spawnpoint__ = 'ghost-4'
     __speed__ = 0.1
     __points__ = 200
+
+    @staticmethod
+    def points():
+        return Ghost.__points__
 
     __animations__ = {'normal': Animation,
                       'dead': Animation,

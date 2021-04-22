@@ -1,6 +1,6 @@
 import pygame
 
-from pyc_man.behaviors import NormalPacMan, DyingPacMan, MovingPacMan, ChaseGhost, FrightGhost
+from pyc_man.behaviors import NormalPacMan, DyingPacMan, MovingPacMan, ChaseGhost, FrightGhost, DeadGhost
 from pyc_man.level import PycManLevel
 from pyc_man.objects import Fruits
 from pyc_man.actors import PacMan, Ghost
@@ -53,7 +53,8 @@ class InitState(XGameState):
         ghost = self.animations.make(Ghost)
         ghost.setup_behaviors({
             Ghost.Behavior.CHASE: ChaseGhost(Ghost.__speed__, "normal"),
-            Ghost.Behavior.FRIGHT: FrightGhost("frighten-normal", 5)
+            Ghost.Behavior.FRIGHT: FrightGhost(Ghost.__speed__, "frighten-normal"),
+            Ghost.Behavior.DEAD: DeadGhost(Ghost.__speed__, "dead")
         }, Ghost.Behavior.CHASE)
 
         self.actors = [

@@ -54,6 +54,11 @@ class ReadyState(XGameState):
 
     def teardown(self):
         self.music.fadeout(1000)
+        for actor in self.actors:
+            if not actor.is_alive:
+                actor.revive()
+            self.level.spawn(actor)
+        self.input.direction = None
         return super().teardown()
 
     def handle_input_event(self, event):

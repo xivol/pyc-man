@@ -49,7 +49,7 @@ class NormalPacMan(x_actor.XBehavior):
     def handle_input(self, actor, timedelta, input, world_state):
         if input.direction:
             self.done = True
-            self.next = "moving"
+            self.next = PacMan.Behavior.MOVE
 
 
 class DyingPacMan(x_actor.XBehavior):
@@ -62,7 +62,7 @@ class MovingPacMan(Moving):
     def handle_input(self, actor, timedelta, input, world_state):
         if not input.direction:
             self.done = True
-            self.next = "normal"
+            self.next = PacMan.Behavior.STILL
         else:
             actor.set_direction(input.direction)
 
@@ -81,7 +81,7 @@ class MovingPacMan(Moving):
 
     def dont_make_a_move(self, actor, world):
         self.done = True
-        self.next = "normal"
+        self.next = PacMan.Behavior.STILL
 
 
 class ChaseGhost(Moving):
@@ -93,10 +93,6 @@ class ChaseGhost(Moving):
 
 
 class FrightGhost(Moving):
-    def __init__(self, animation):
-        super().__init__(0, animation)
-        self.timeout = False
-
     def dont_make_a_move(self, actor, world):
         actor.set_direction(Direction.random())
 

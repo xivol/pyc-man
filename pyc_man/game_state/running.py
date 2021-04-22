@@ -30,14 +30,8 @@ class RunningState(XGameState, ConsumeHandler):
 
     def setup(self, **persist_values):
         super().setup(**persist_values)
-
-        for actor in self.actors:
-            if not actor.is_alive:
-                actor.revive()
-            self.level.spawn(actor)
         self.life_counter.set_value(self.actors[0].extra_lives)
         self.level_counter.set_value(self.current_bonus + 1)
-        self.input.direction = None
 
     def teardown(self):
         if self.fruit:
@@ -89,24 +83,15 @@ class RunningState(XGameState, ConsumeHandler):
             self.level.remove(target)
             if isinstance(target, Pellet) or isinstance(target, Energizer):
                 self.add_pellet_count(1)
-                if isinstance(target, Energizer):
-                    for actor in self.actors:
-                        if isinstance(actor.behavior, ChaseGhost):
-                            actor.state.done = True
-                            actor.state.next = 'fright'
                 if self.level.pellets == 0:
                     self.done = True
                     self.next = "Win"
                     self.current_bonus += 1
                     if self.current_bonus == len(self.bonuses):
                         self.current_bonus = len(self.bonuses) - 1
-        elif isinstance(subject, Ghost) and isinstance(target, PacMan):
-            target.die()
-            self.done = True
-            if target.extra_lives > 0:
-                self.next = "Lose"
-            else:
-                self.next = "GameOver"
+            if isinstance(target, Energizer):
+                self.done = True
+                self.next = "Fright"
 
     def add_score(self, points):
         self.score += points

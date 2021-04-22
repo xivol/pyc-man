@@ -1,7 +1,7 @@
 import pygame
 
 from pyc_man.actors import PacMan
-from pyc_man.game_state import RunningState
+from .running import RunningState
 from pyc_man.game_state.ready import ReadyState
 from x_game_state import XGameState
 

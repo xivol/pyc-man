@@ -1,10 +1,8 @@
 from .init import InitState
-from .running import RunningState
 from .ready import ReadyState
 from .win import WinState
 from .lose import LoseState
+from .chase import ChaseState
+from .fright import FrightState
 
-
-__all__ =['InitState', 'RunningState', 'WinState', 'LoseState', 'ReadyState']
-
-
+__all__ = ['InitState', 'ChaseState', 'FrightState', 'WinState', 'LoseState', 'ReadyState']
