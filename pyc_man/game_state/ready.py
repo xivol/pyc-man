@@ -44,7 +44,9 @@ class ReadyState(XGameState):
         self.level = None
         self.font = None
         self.ui = None
-        self.sound = None
+        self.sounds = None
+
+        self.fruit = None
 
     def setup(self, **persist_values):
         super().setup(**persist_values)
@@ -52,12 +54,18 @@ class ReadyState(XGameState):
             self.music = self.sounds[self.__on_startup__]
             self.music.play(fade_ms=100)
 
+        if self.fruit:
+            self.level.remove(self.fruit)
+            self.fruit = None
+
     def teardown(self):
         self.music.fadeout(1000)
+
         for actor in self.actors:
             if not actor.is_alive:
                 actor.revive()
             self.level.spawn(actor)
+
         self.input.direction = None
         return super().teardown()
 

@@ -9,7 +9,10 @@ from x_input import Direction
 
 class RunningState(XGameState, ConsumeHandler):
     def __init__(self, persists=set()):
-        super().__init__(persists=persists | {'score', 'pellets_count', 'current_bonus'})
+        super().__init__(persists=persists | {'score',
+                                              'pellets_count',
+                                              'current_bonus',
+                                              'fruit'})
 
         # Persistent values
         self.level = None
@@ -32,12 +35,6 @@ class RunningState(XGameState, ConsumeHandler):
         super().setup(**persist_values)
         self.life_counter.set_value(self.actors[0].extra_lives)
         self.level_counter.set_value(self.current_bonus + 1)
-
-    def teardown(self):
-        if self.fruit:
-            self.level.remove(self.fruit)
-            self.fruit = None
-        return super().teardown()
 
     def handle_input_event(self, event):
         super().handle_input_event(event)

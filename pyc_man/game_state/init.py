@@ -50,6 +50,7 @@ class InitState(XGameState):
             PacMan.Behavior.DEAD: DyingPacMan('dead', sound='death'),
             PacMan.Behavior.MOVE: MovingPacMan(PacMan.__speed__, 'moving')
         }, PacMan.Behavior.ROUND)
+
         ghost = self.animations.make(Ghost)
         ghost.setup_behaviors({
             Ghost.Behavior.CHASE: ChaseGhost(Ghost.__speed__, "normal"),
@@ -79,5 +80,6 @@ class InitState(XGameState):
         self.score = 0
         self.current_bonus = 0
         self.pellets_count = 0
+
 
         self.done = True
