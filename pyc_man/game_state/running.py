@@ -8,6 +8,8 @@ from x_input import Direction
 
 
 class RunningState(XGameState, ConsumeHandler):
+    __music_loop__ = None
+
     def __init__(self, persists=set()):
         super().__init__(persists=persists | {'score',
                                               'pellets_count',
@@ -30,11 +32,18 @@ class RunningState(XGameState, ConsumeHandler):
         self.pellets_count = 0
         self.current_bonus = 0
         self.fruit = None
+        self.music = None
 
     def setup(self, **persist_values):
         super().setup(**persist_values)
         self.life_counter.set_value(self.actors[0].extra_lives)
         self.level_counter.set_value(self.current_bonus + 1)
+        if self.__music_loop__:
+            self.sounds.music.play(self.__music_loop__, loops=-1, fade_ms=100)
+
+    def teardown(self):
+        self.sounds.music.fadeout(100)
+        return super().teardown()
 
     def handle_input_event(self, event):
         super().handle_input_event(event)
@@ -89,6 +98,13 @@ class RunningState(XGameState, ConsumeHandler):
             if isinstance(target, Energizer):
                 self.done = True
                 self.next = "Fright"
+        elif isinstance(subject, Ghost) and isinstance(target, PacMan):
+            target.change_behavior(target.Behavior.DEAD)
+            self.done = True
+            if target.extra_lives > 0:
+                self.next = "Lose"
+            else:
+                self.next = "GameOver"
 
     def add_score(self, points):
         self.score += points

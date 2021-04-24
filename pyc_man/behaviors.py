@@ -2,7 +2,6 @@ from abc import abstractmethod
 
 import x_actor
 from x_input import Direction
-from pyc_man.actors import PacMan, Ghost
 from pyc_man.objects import Wall, Gate, BonusMixin
 
 
@@ -48,21 +47,18 @@ class Moving(x_actor.XBehavior):
 class NormalPacMan(x_actor.XBehavior):
     def handle_input(self, actor, timedelta, input, world_state):
         if input.direction:
-            self.done = True
-            self.next = PacMan.Behavior.MOVE
+            actor.change_behavior(actor.Behavior.MOVE)
 
 
 class DyingPacMan(x_actor.XBehavior):
-    def __init__(self, animation, sound):
+    def __init__(self, animation):
         super().__init__(animation)
-        self.sound = sound
 
 
 class MovingPacMan(Moving):
     def handle_input(self, actor, timedelta, input, world_state):
         if not input.direction:
-            self.done = True
-            self.next = PacMan.Behavior.STILL
+            actor.change_behavior(actor.Behavior.STILL)
         else:
             actor.set_direction(input.direction)
 
@@ -72,7 +68,7 @@ class MovingPacMan(Moving):
 
     def can_eat(self, object):
         return isinstance(object, BonusMixin) or \
-               (isinstance(object, Ghost) and
+               (isinstance(object, x_actor.XActor) and
                 isinstance(object.behavior, FrightGhost))
 
     def make_a_move(self, actor, move_dist, screen):
@@ -80,8 +76,7 @@ class MovingPacMan(Moving):
         super().make_a_move(actor, move_dist, screen)
 
     def dont_make_a_move(self, actor, world):
-        self.done = True
-        self.next = PacMan.Behavior.STILL
+        actor.change_behavior(actor.Behavior.STILL)
 
 
 class ChaseGhost(Moving):
@@ -89,10 +84,17 @@ class ChaseGhost(Moving):
         actor.set_direction(Direction.random())
 
     def can_eat(self, object):
-        return isinstance(object, PacMan)
+        return isinstance(object, x_actor.XActor) and \
+               (isinstance(object.behavior, NormalPacMan) or \
+                isinstance(object.behavior, MovingPacMan))
 
 
 class FrightGhost(Moving):
+    def __init__(self, speed, animation, timeout_animation, persists=set()):
+        super().__init__(speed, animation, persists)
+        self.timeout_animation = timeout_animation
+        self.timeout = False
+
     def dont_make_a_move(self, actor, world):
         actor.set_direction(Direction.random())
 
@@ -106,7 +108,7 @@ class FrightGhost(Moving):
 
     def enact(self, actor, timedelta, world):
         if self.timeout:
-            actor.animation.set_state('frighten-timeout')
+            actor.animation.set_state(self.timeout_animation)
         super().enact(actor, timedelta, world)
 
 

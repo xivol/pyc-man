@@ -119,6 +119,8 @@ class PycManLevel(XTiledLevel):
             self.blink(timedelta)
 
     def blink(self, timedelta):
+        if not self.is_blinking:
+            return
         self.time_since_blink += timedelta
         if self.time_since_blink >= self.blink_duration:
             self.blinking_layer.visible = not self.blinking_layer.visible

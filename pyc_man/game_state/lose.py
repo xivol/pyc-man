@@ -5,7 +5,7 @@ from pyc_man.game_state.ready import ReadyState
 
 
 class LoseState(ReadyState):
-    __on_startup__ = 'death'
+    __music_on_startup__ = 'death'
 
     def __init__(self, message, message_color, next_state):
         super().__init__(next_state, subtitle=message, subtitle_color=message_color)
@@ -24,6 +24,7 @@ class LoseState(ReadyState):
             self.done = False
 
     def setup(self, **persist_values):
+        pygame.time.wait(500)
         super().setup(**persist_values)
         for actor in self.actors:
             if isinstance(actor, PacMan):
@@ -32,12 +33,12 @@ class LoseState(ReadyState):
                 self.level.remove(actor)
 
     def update(self, timedelta):
+        self.level.update(timedelta, self.input, self)
         if not self.pacman.animation.current().is_finished():
-            self.level.update(timedelta, self.input, self)
             self.dirty = True
 
     def draw(self, surface):
-        if not self.pacman.animation.current().is_finished():
-            RunningState.draw(self, surface)
-        else:
+        if self.pacman.animation.current().is_finished():
             super().draw(surface)
+        else:
+            RunningState.draw(self, surface)

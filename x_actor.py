@@ -21,6 +21,9 @@ class XBehavior(x_fsm.XState):
 
 
 class XActor(x_object.XAnimatedObject, x_fsm.XFiniteStateManager):
+    __behaviors__ = None
+    __default_behavior__ = None
+
     def __init__(self, animations):
         super().__init__(animations)
         self.sound = None
@@ -32,8 +35,10 @@ class XActor(x_object.XAnimatedObject, x_fsm.XFiniteStateManager):
     def change_behavior(self, behavior_name):
         if behavior_name not in self.state_dict:
             raise Exception()
-        self.state.done = True
-        self.state.next = behavior_name
+        if self.state_name != behavior_name:
+            self.state.done = True
+            self.state.next = behavior_name
+            # self.flip_state()
 
     def setup_behaviors(self, behaviors, init_behavior):
         super().setup_states(behaviors, init_behavior)
@@ -56,3 +61,21 @@ class XActor(x_object.XAnimatedObject, x_fsm.XFiniteStateManager):
         sound = sounds[sound_name]
         if sound.get_num_channels() < 1:
             self.sound = sound.play(fade_ms=100)
+
+
+class XActorFactory:
+    def __init__(self, sprites, animations, sounds):
+        self.sprites = sprites
+        self.animations = animations
+        self.sounds = sounds
+
+    def make(self, type):
+        if not issubclass(type, XActor):
+            raise Exception
+        man = type.__manager_type__(type.__sprite_name__,
+                                    self.animations,
+                                    type.__animations__,
+                                    type.__default_anim__)
+        actor = type(man)
+        actor.setup_behaviors(type.__behaviors__, type.__default_behavior__)
+        return actor

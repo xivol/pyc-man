@@ -6,6 +6,7 @@ from pyc_man.objects import Fruits
 from pyc_man.actors import PacMan, Ghost
 from pyc_man.ui import UICounter, UIScoreCounter
 from x_animation_factory import XAnimationFactory
+from x_actor import XActorFactory
 from x_bmpfont import XBMPFont
 from x_game_state import XGameState
 from x_input import Direction
@@ -30,6 +31,7 @@ class InitState(XGameState):
         self.sprites = XTMXSpriteFactory(sprites_file)
         self.animations = XAnimationFactory(self.sprites)
         self.sounds = XSoundManager(sounds_dir)
+        self.producer = XActorFactory(self.sprites, self.animations, self.sounds)
         self.font = XBMPFont(font_file)
         self.setup()
 
@@ -43,24 +45,9 @@ class InitState(XGameState):
         for b in self.bonuses:
             self.logger.info("fruit: %s %d", b, b.points())
 
-        pacman = self.animations.make(PacMan)
-        pacman.setup_behaviors({
-            PacMan.Behavior.ROUND: NormalPacMan('init'),
-            PacMan.Behavior.STILL: NormalPacMan('normal'),
-            PacMan.Behavior.DEAD: DyingPacMan('dead', sound='death'),
-            PacMan.Behavior.MOVE: MovingPacMan(PacMan.__speed__, 'moving')
-        }, PacMan.Behavior.ROUND)
-
-        ghost = self.animations.make(Ghost)
-        ghost.setup_behaviors({
-            Ghost.Behavior.CHASE: ChaseGhost(Ghost.__speed__, "normal"),
-            Ghost.Behavior.FRIGHT: FrightGhost(Ghost.__speed__, "frighten-normal"),
-            Ghost.Behavior.DEAD: DeadGhost(Ghost.__speed__, "dead")
-        }, Ghost.Behavior.CHASE)
-
         self.actors = [
-            pacman,
-            ghost
+            self.producer.make(PacMan),
+            self.producer.make(Ghost)
         ]
 
         self.life_counter = UICounter(self.sprites['pacman-normal-left'].image, PacMan.__start_lives__)

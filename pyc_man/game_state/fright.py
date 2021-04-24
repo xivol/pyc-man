@@ -6,6 +6,8 @@ from x_input import Direction
 
 
 class FrightState(RunningState):
+    __music_loop__ = 'ghost_fright'
+
     def __init__(self, duration, timeout_after=None):
         super().__init__(persists={'fright_duration', 'fright_timeout'})
         self.fright_duration = duration * 1000  # ms
@@ -39,7 +41,6 @@ class FrightState(RunningState):
                 actor.behavior.start_timeout()
 
     def on_did_consume(self, actor, target):
-        print(actor, target)
         if isinstance(actor, PacMan) and isinstance(target, Ghost):
             self.streak += 1
             self.add_score(target.points() * self.streak)

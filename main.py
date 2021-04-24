@@ -32,7 +32,7 @@ if __name__ == '__main__':
                        "Ready": ReadyState('Chase', 'Player One', 'Ready!'),
                        "Chase": ChaseState(),
                        "Fright": FrightState(5, 3),
-                       "Win":  WinState('Next Level'),
+                       "Win":  WinState('Next Level', 'Chase'),
                        "Lose": LoseState('Uh-Oh!', pygame.Color(255, 184, 81), 'Chase'),
                        "GameOver": LoseState("Game Over!", pygame.Color(255, 0, 0), 'Init')
         }

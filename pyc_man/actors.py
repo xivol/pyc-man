@@ -54,13 +54,22 @@ class PacMan(PMActor):
                       "normal": StaticAnimation,
                       "moving": Animation,
                       "dead": Animation}
-    __default_state__ = "init"
+    __default_anim__ = "init"
 
     class Behavior(Enum):
         ROUND = 'init'
         STILL = 'normal'
         MOVE = 'moving'
         DEAD = 'dead'
+
+    __behaviors__ = {
+        Behavior.ROUND: behaviors.NormalPacMan( 'init'),
+        Behavior.STILL: behaviors.NormalPacMan('normal'),
+        Behavior.MOVE: behaviors.MovingPacMan(__speed__, 'moving'),
+        Behavior.DEAD: behaviors.DyingPacMan('dead')
+    }
+
+    __default_behavior__ = Behavior.ROUND
 
     def __init__(self, sprite_factory, *params, **kwargs):
         self.extra_lives = self.__start_lives__
@@ -74,14 +83,9 @@ class PacMan(PMActor):
     def is_alive(self):
         return not isinstance(self.state, behaviors.DyingPacMan)
 
-    def die(self):
-        self.state.next = PacMan.Behavior.DEAD
-        self.state.done = True
-
     def revive(self):
         self.extra_lives -= 1
-        self.state.next = PacMan.Behavior.ROUND
-        self.state.done = True
+        self.change_behavior(PacMan.Behavior.ROUND)
 
 
 class Ghost(PMActor):
@@ -98,11 +102,17 @@ class Ghost(PMActor):
                       'dead': Animation,
                       'frighten-normal': Animation,
                       'frighten-timeout': Animation}
-    __default_state__ = "normal"
-
-    __sound__ = 'ghost'
+    __default_anim__ = "normal"
 
     class Behavior(Enum):
         CHASE = 'chase'
         FRIGHT = 'fright'
         DEAD = 'dead'
+
+    __behaviors__ = {
+        Behavior.CHASE: behaviors.ChaseGhost(__speed__, 'normal'),
+        Behavior.FRIGHT: behaviors.FrightGhost(__speed__, 'frighten-normal', 'frighten-timeout'),
+        Behavior.DEAD: behaviors.DeadGhost(__speed__, 'dead')
+    }
+
+    __default_behavior__ = Behavior.CHASE

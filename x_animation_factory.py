@@ -82,5 +82,5 @@ class XAnimationFactory(XLoggingMixin):
         man = type.__manager_type__(type.__sprite_name__,
                                     self,
                                     type.__animations__,
-                                    type.__default_state__)
+                                    type.__default_anim__)
         return type(man, *params, **kwargs)
