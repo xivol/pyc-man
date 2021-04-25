@@ -35,7 +35,7 @@ class XStaticObject(pygame.sprite.Sprite):
 
 class XAnimatedObject(XStaticObject):
     __animations__ = None
-    __default_state__ = None
+    __default_anim__ = None
     __manager_type__ = None
 
     def __init__(self, manager, position=None, *groups):

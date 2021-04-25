@@ -5,6 +5,7 @@ from pyc_man.objects import Fruits
 from pyc_man.actors import PacMan, Ghost
 from pyc_man.ui import UICounter, UIScoreCounter
 from x_animation_factory import XAnimationFactory
+from x_actor import XActorFactory
 from x_bmpfont import XBMPFont
 from x_game_state import XGameState
 from x_input import Direction
@@ -28,7 +29,8 @@ class InitState(XGameState):
         self.level = PycManLevel(map_file)
         self.sprites = XTMXSpriteFactory(sprites_file)
         self.animations = XAnimationFactory(self.sprites)
-        self.sounds = XSoundManager(sounds_dir)
+        self.sounds = XSoundManager(sounds_dir, {'music', 'pacman', 'effects'})
+        self.producer = XActorFactory(self.sprites, self.animations, self.sounds)
         self.font = XBMPFont(font_file)
         self.setup()
 
@@ -43,10 +45,9 @@ class InitState(XGameState):
             self.logger.info("fruit: %s %d", b, b.points())
 
         self.actors = [
-            self.animations.make(PacMan),
-            self.animations.make(Ghost)
+            self.producer.make(PacMan),
+            self.producer.make(Ghost)
         ]
-
 
         self.life_counter = UICounter(self.sprites['pacman-normal-left'].image, PacMan.__start_lives__)
         self.life_counter.set_position((self.level.tile_width,

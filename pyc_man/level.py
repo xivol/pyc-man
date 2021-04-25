@@ -1,12 +1,11 @@
-from itertools import product
-
 import pygame
+from itertools import product
 
 from pyc_man.actors import Ghost
 from pyc_man.objects import Wall, Pellet, Energizer, Gate, BonusMixin, SpawnableMixin
-from tiled_renderer import TiledRenderer
 from x_level import XTiledLevel
 from x_object import XStaticObject
+from tiled_renderer import TiledRenderer
 
 
 class PycManLevel(XTiledLevel):
@@ -80,6 +79,14 @@ class PycManLevel(XTiledLevel):
         return (position[0] // tw * tw + tw // 2,
                 position[1] // th * th + th // 2)
 
+    def wrap(self, x, y):
+        width, height = self.renderer.pixel_size
+        if not 0 <= x < width:
+            x = (x + width) % width
+        if not 0 <= y < height:
+            y = (y + height) % height
+        return x, y
+
     def can_pass(self, actor, direction):
         old_rect = actor.rect
         if actor.makes_turn:
@@ -87,10 +94,10 @@ class PycManLevel(XTiledLevel):
         actor.rect = actor.rect.move(direction)
         collider = actor.get_hit(self.collider_sprites)
         actor.rect = old_rect
-        return actor.can_pass(collider)
+        return actor.behavior.can_pass(collider)
 
     def get_hit(self, actor):
-        return actor.get_hit(self.collider_sprites, collide_func=actor.__class__.can_eat)
+        return actor.get_hit(self.collider_sprites)
 
     def remove(self, object):
         self.collider_sprites.remove(object)
@@ -112,6 +119,8 @@ class PycManLevel(XTiledLevel):
             self.blink(timedelta)
 
     def blink(self, timedelta):
+        if not self.is_blinking:
+            return
         self.time_since_blink += timedelta
         if self.time_since_blink >= self.blink_duration:
             self.blinking_layer.visible = not self.blinking_layer.visible

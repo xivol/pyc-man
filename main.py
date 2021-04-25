@@ -17,7 +17,7 @@ if __name__ == '__main__':
     import pygame
 
     from pyc_man.game_state import InitState, WinState, LoseState, ReadyState
-    from pyc_man.game_state import RunningState
+    from pyc_man.game_state import ChaseState, FrightState
     from x_game import XGame
 
     logging.basicConfig(level=logging.DEBUG)
@@ -29,10 +29,11 @@ if __name__ == '__main__':
                                          os.path.join('data', 'font.tmx'),
                                          os.path.join('data', 'snd'),
                                          'Ready'),
-                       "Ready": ReadyState('Running', 'Player One', 'Ready!'),
-                       "Running": RunningState(),
-                       "Win":  WinState('Next Level'),
-                       "Lose": LoseState('Uh-Oh!', pygame.Color(255, 184, 81)),
+                       "Ready": ReadyState('Chase', 'Player One', 'Ready!'),
+                       "Chase": ChaseState(),
+                       "Fright": FrightState(5, 3),
+                       "Win":  WinState('Next Level', 'Chase'),
+                       "Lose": LoseState('Uh-Oh!', pygame.Color(255, 184, 81), 'Chase'),
                        "GameOver": LoseState("Game Over!", pygame.Color(255, 0, 0), 'Init')
         }
         game.setup_states(game_states, "Init")

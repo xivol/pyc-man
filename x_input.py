@@ -12,6 +12,7 @@ class Direction(enum.Enum):
 
     def __str__(self):
         return self.name.lower()
+
     @staticmethod
     def all():
         return [Direction.LEFT, Direction.RIGHT, Direction.UP, Direction.DOWN]
@@ -21,11 +22,15 @@ class Direction(enum.Enum):
         return Direction.RIGHT
 
     @staticmethod
+    def opposite(direction):
+        return Direction((direction.value + 2) % 4)
+
+    @staticmethod
     def random():
         return random.choice(Direction.all())
 
     def move(self, delta):
-        return self.move_point((0,0), delta)
+        return self.move_point((0, 0), delta)
 
     def move_point(self, point, delta):
         if self == Direction.UP:
@@ -35,12 +40,12 @@ class Direction(enum.Enum):
         if self == Direction.DOWN:
             return (point[0], point[1] + delta)
         if self == Direction.LEFT:
-            return (point[0]-delta, point[1])
+            return (point[0] - delta, point[1])
 
 
 class XGameInput(object):
     def __init__(self):
-        self.keys_pressed=set()
+        self.keys_pressed = set()
 
     def key_down(self, event):
         if event.type != pygame.KEYDOWN:

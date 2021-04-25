@@ -15,22 +15,21 @@ class UIText(x_ui.XUI):
 
     def __render__(self):
         self.image = self.font.render(self.text, align=self.align, color=self.color)
+        self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
 
 
 class UIScoreCounter(UIText):
-    def __init__(self, format_string, value, font, color=None, align='left',  *groups):
+    def __init__(self, format_string, value, font, color=None, align='left', *groups):
         self.value = value
-        super().__init__(format_string, font, color, align, *groups)
+        self.format_string = format_string
+        super().__init__(self.format_string.format(self.value), font, color, align, *groups)
 
     def set_value(self, new_value):
         if self.value != new_value:
             self.value = new_value
+            self.text = self.format_string.format(self.value)
             self.__render__()
-
-    def __render__(self):
-        self.image = self.font.render(self.text.format(self.value), align= self.align, color=self.color)
-        self.rect = self.image.get_rect()
 
 
 class UICounter(x_ui.XUI):
@@ -48,11 +47,11 @@ class UICounter(x_ui.XUI):
     def set_value(self, new_value):
         if self.value != new_value:
             self.value = new_value
-            w,h = self.images[0].get_size()
+            w, h = self.images[0].get_size()
 
-            img_w = w*self.value if not self.max_value else w*self.max_value
+            img_w = w * self.value if not self.max_value else w * self.max_value
 
-            img = pygame.Surface((img_w , h))
+            img = pygame.Surface((img_w, h))
 
             if self.direction == Direction.RIGHT:
                 x_start = img_w - w
@@ -67,7 +66,7 @@ class UICounter(x_ui.XUI):
             if self.rect is not None:
                 self.rect = pygame.Rect(self.rect.topleft, img.get_size())
             else:
-                self.rect = pygame.Rect((0,0), img.get_size())
+                self.rect = pygame.Rect((0, 0), img.get_size())
 
     def get_count_image(self, count):
         return self.images[count % len(self.images)]

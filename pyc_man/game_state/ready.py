@@ -1,7 +1,7 @@
-import os
-
 import pygame
 from x_game_state import XGameState
+from pyc_man.ui import UIText
+
 
 def get(text, color):
     if not text:
@@ -30,9 +30,9 @@ def pad(text, width):
 class ReadyState(XGameState):
     __title_rect__ = pygame.Rect(9, 14, 10, 1)
     __subtitle_rect__ = pygame.Rect(9, 20, 10, 1)
-    __on_startup__ = 'ready'
+    __music_on_startup__ = 'ready'
 
-    def __init__(self, next_state="Running", title=None, subtitle=None, **kwargs):
+    def __init__(self, next_state, title=None, subtitle=None, **kwargs):
         super().__init__(next_state)
         self.title_text, self.title_color = get(title, kwargs.get('title_color', pygame.Color(0, 255, 255)))
         self.title_text = pad(self.title_text, self.__title_rect__.width)
@@ -42,18 +42,44 @@ class ReadyState(XGameState):
 
         # Persistent values
         self.level = None
+        self.actors = None
         self.font = None
         self.ui = None
-        self.sound = None
+        self.sounds = None
+        self.fruit = None
+
+        self.title = None
+        self.subtitle = None
 
     def setup(self, **persist_values):
         super().setup(**persist_values)
-        if self.__on_startup__:
-            self.music = self.sounds[self.__on_startup__]
-            self.music.play(fade_ms=100)
+
+        if self.__music_on_startup__:
+            self.music = self.sounds.music.play(self.__music_on_startup__, fade_ms=100)
+
+        self.title = self.make_text(self.title_text, self.title_color, 'left', self.__title_rect__)
+        if self.title:
+            self.ui.add(self.title)
+        self.subtitle = self.make_text(self.subtitle_text, self.subtitle_color, 'left', self.__subtitle_rect__)
+        if self.subtitle:
+            self.ui.add(self.subtitle)
+
+        if self.fruit:
+            self.level.remove(self.fruit)
+            self.fruit = None
 
     def teardown(self):
-        self.music.fadeout(1000)
+        self.sounds.music.fadeout(100)
+
+        for actor in self.actors:
+            if not actor.is_alive:
+                actor.revive()
+            self.level.spawn(actor)
+
+        self.ui.remove(self.title)
+        self.ui.remove(self.subtitle)
+
+        self.input.direction = None
         return super().teardown()
 
     def handle_input_event(self, event):
@@ -62,12 +88,12 @@ class ReadyState(XGameState):
         if event.type == pygame.KEYDOWN:
             self.done = True
 
-    def render(self, text, color, rect, surface):
+    def make_text(self, text, color, align, rect):
         if not text:
-            return
-        img = self.font.render(text, color)
-        img.set_colorkey((0, 0, 0))
-        surface.blit(img, (rect.x * self.level.tile_width, rect.y * self.level.tile_height))
+            return None
+        ui_text = UIText(text, self.font, color, align)
+        ui_text.rect.topleft = (rect.x * self.level.tile_width, rect.y * self.level.tile_height)
+        return ui_text
 
     def draw(self, surface):
         level_size_surf = pygame.Surface(self.level.renderer.pixel_size)
@@ -75,7 +101,7 @@ class ReadyState(XGameState):
         self.level.draw(level_size_surf)
         self.ui.draw(level_size_surf)
 
-        self.render(self.title_text, self.title_color, self.__title_rect__, level_size_surf)
-        self.render(self.subtitle_text, self.subtitle_color, self.__subtitle_rect__, level_size_surf)
+        # self.render(self.title_text, self.title_color, self.__title_rect__, level_size_surf)
+        # self.render(self.subtitle_text, self.subtitle_color, self.__subtitle_rect__, level_size_surf)
 
         pygame.transform.smoothscale(level_size_surf, surface.get_size(), surface)

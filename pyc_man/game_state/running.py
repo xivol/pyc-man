@@ -1,14 +1,20 @@
 import pygame
 
+from pyc_man.behaviors import ConsumeHandler, ChaseGhost, DyingPacMan
 from pyc_man.objects import BonusMixin, Pellet, Energizer, Fruits
-from pyc_man.actors import PacMan, ConsumeHandler, Ghost
+from pyc_man.actors import PacMan, Ghost
 from x_game_state import XGameState
 from x_input import Direction
 
 
 class RunningState(XGameState, ConsumeHandler):
-    def __init__(self):
-        super().__init__(persists={'score', 'pellets_count', 'current_bonus'})
+    __music_loop__ = None
+
+    def __init__(self, persists=set()):
+        super().__init__(persists=persists | {'score',
+                                              'pellets_count',
+                                              'current_bonus',
+                                              'fruit'})
 
         # Persistent values
         self.level = None
@@ -29,19 +35,16 @@ class RunningState(XGameState, ConsumeHandler):
 
     def setup(self, **persist_values):
         super().setup(**persist_values)
-
-        for actor in self.actors:
-            if not actor.is_alive:
-                actor.revive()
-            self.level.spawn(actor)
         self.life_counter.set_value(self.actors[0].extra_lives)
         self.level_counter.set_value(self.current_bonus + 1)
-        self.input.direction = None
+        for actor in self.actors:
+            if isinstance(actor, PacMan):
+                self.pacman = actor
+        if self.__music_loop__:
+            self.sounds.music.play(self.__music_loop__, loops=-1, fade_ms=100)
 
     def teardown(self):
-        if self.fruit:
-            self.level.remove(self.fruit)
-            self.fruit = None
+        self.sounds.music.fadeout(100)
         return super().teardown()
 
     def handle_input_event(self, event):
@@ -84,9 +87,11 @@ class RunningState(XGameState, ConsumeHandler):
 
     def on_did_consume(self, subject, target):
         if isinstance(subject, PacMan) and isinstance(target, BonusMixin):
-            subject.make_sound(self.sounds, target)
             self.add_score(target.points())
             self.level.remove(target)
+            if isinstance(target, Energizer):
+                self.done = True
+                self.next = "Fright"
             if isinstance(target, Pellet) or isinstance(target, Energizer):
                 self.add_pellet_count(1)
                 if self.level.pellets == 0:
@@ -95,9 +100,7 @@ class RunningState(XGameState, ConsumeHandler):
                     self.current_bonus += 1
                     if self.current_bonus == len(self.bonuses):
                         self.current_bonus = len(self.bonuses) - 1
-
         elif isinstance(subject, Ghost) and isinstance(target, PacMan):
-            target.die()
             self.done = True
             if target.extra_lives > 0:
                 self.next = "Lose"

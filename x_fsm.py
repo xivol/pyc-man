@@ -1,7 +1,7 @@
 
 
 class XState(object):
-    def __init__(self, next=None, previous=None, persists=None):
+    def __init__(self, next=None, previous=None, persists=set()):
         self.done = False
         self.final = False
 

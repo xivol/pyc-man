@@ -50,14 +50,14 @@ class Pellet(XStaticObject, BonusMixin):
 
 class XBlinkingObject(XAnimatedObject):
     def __init__(self, image, rect, position=None, *groups):
-        super().__init__(BlinkingAnimator(self.__sprite_name__, image, self.__default_state__),
+        super().__init__(BlinkingAnimator(self.__sprite_name__, image, self.__default_anim__),
                          position,
                          *groups)
 
 
 class Energizer(XBlinkingObject, BonusMixin):
     __sprite_name__ = 'energizer'
-    __default_state__ = "blinking"
+    __default_anim__ = "blinking"
     __points__ = 50
     __sound__ = 'waka'
 
@@ -70,7 +70,7 @@ class Energizer(XBlinkingObject, BonusMixin):
 class Fruits(XBlinkingObject, BonusMixin, SpawnableMixin):
     __points__ = [100, 300, 500, 700, 1000, 2000, 3000, 5000]
     __sprite_name__ = 'fruit'
-    __default_state__ = "normal"
+    __default_anim__ = "normal"
     __spawnpoint__ = 'fruit'
     __sound__ = 'fruit'
 
