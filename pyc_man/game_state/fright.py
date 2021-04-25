@@ -1,5 +1,5 @@
 from pyc_man.actors import Ghost, PacMan
-from pyc_man.behaviors import FrightGhost
+from pyc_man.behaviors import FrightGhost, FlickerGhost
 from .running import RunningState
 from pyc_man.objects import Energizer
 from x_input import Direction
@@ -38,7 +38,7 @@ class FrightState(RunningState):
             flicker_ghosts = filter(lambda x: isinstance(x.behavior, FrightGhost),
                                     self.ghosts)
             for actor in flicker_ghosts:
-                actor.behavior.start_timeout()
+                actor.change_behavior(Ghost.Behavior.FLICKER)
 
     def on_did_consume(self, actor, target):
         if isinstance(actor, PacMan) and isinstance(target, Ghost):
@@ -48,4 +48,10 @@ class FrightState(RunningState):
             if self.streak == sum(1 for a in self.ghosts):
                 self.streak = 0
         else:
+            if isinstance(actor, PacMan) and isinstance(target, Energizer):
+                self.time_since_start = 0
+                flicker_ghosts = filter(lambda x: isinstance(x.behavior, FlickerGhost),
+                                        self.ghosts)
+                for actor in flicker_ghosts:
+                    actor.change_behavior(Ghost.Behavior.FRIGHT)
             super().on_did_consume(actor, target)

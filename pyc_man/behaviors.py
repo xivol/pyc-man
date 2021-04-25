@@ -1,8 +1,10 @@
 from abc import abstractmethod
+from enum import Enum
 
 import x_actor
 from x_input import Direction
-from pyc_man.objects import Wall, Gate, BonusMixin
+from pyc_man.objects import Wall, Gate, BonusMixin, Fruits
+from x_sound import XSoundMixin
 
 
 class ConsumeHandler:
@@ -26,6 +28,7 @@ class Moving(x_actor.XBehavior):
         target = world.level.get_hit(actor)
         if self.can_eat(target) and isinstance(world, ConsumeHandler):
             # actor.make_sound(world.sounds, target.__sound__)
+            self.make_a_sound(actor, target, world.sounds)
             world.on_did_consume(actor, target)
 
     def can_pass(self, object):
@@ -43,6 +46,12 @@ class Moving(x_actor.XBehavior):
     def dont_make_a_move(self, actor, world):
         pass
 
+    def make_a_sound(self, actor, event, sounds):
+        pass
+
+    def dont_make_a_sound(self, actor, sounds):
+        pass
+
 
 class NormalPacMan(x_actor.XBehavior):
     def handle_input(self, actor, timedelta, input, world_state):
@@ -51,11 +60,15 @@ class NormalPacMan(x_actor.XBehavior):
 
 
 class DyingPacMan(x_actor.XBehavior):
-    def __init__(self, animation):
-        super().__init__(animation)
+    pass
 
 
 class MovingPacMan(Moving):
+    class Sound(Enum):
+        EAT_FRUIT = 'fruit'
+        EAT_GHOST = 'ghost'
+        EAT = 'waka'
+
     def handle_input(self, actor, timedelta, input, world_state):
         if not input.direction:
             actor.change_behavior(actor.Behavior.STILL)
@@ -76,7 +89,20 @@ class MovingPacMan(Moving):
         super().make_a_move(actor, move_dist, screen)
 
     def dont_make_a_move(self, actor, world):
+        self.dont_make_a_sound(actor, world.sounds)
         actor.change_behavior(actor.Behavior.STILL)
+
+    def make_a_sound(self, actor, event, sounds):
+        if isinstance(actor, XSoundMixin):
+            if isinstance(event, x_actor.XActor):
+                actor.play_sound(self.Sound.EAT_GHOST, sounds.effects)
+            elif isinstance(event, Fruits):
+                actor.play_sound(self.Sound.EAT_FRUIT, sounds.effects)
+            else:
+                actor.play_sound(self.Sound.EAT, sounds.pacman)
+
+    def dont_make_a_sound(self, actor, sounds):
+        actor.stop_sound(sounds.pacman)
 
 
 class ChaseGhost(Moving):
@@ -90,27 +116,15 @@ class ChaseGhost(Moving):
 
 
 class FrightGhost(Moving):
-    def __init__(self, speed, animation, timeout_animation, persists=set()):
-        super().__init__(speed, animation, persists)
-        self.timeout_animation = timeout_animation
-        self.timeout = False
-
     def dont_make_a_move(self, actor, world):
         actor.set_direction(Direction.random())
 
     def enter(self, actor):
         super().enter(actor)
         actor.set_direction(Direction.opposite(actor.direction))
-        self.timeout = False
 
-    def start_timeout(self):
-        self.timeout = True
-
-    def enact(self, actor, timedelta, world):
-        if self.timeout:
-            actor.animation.set_state(self.timeout_animation)
-        super().enact(actor, timedelta, world)
-
+class FlickerGhost(FrightGhost):
+    pass
 
 class DeadGhost(Moving):
     pass

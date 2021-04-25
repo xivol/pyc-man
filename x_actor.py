@@ -1,5 +1,6 @@
 import x_fsm
 import x_object
+import x_sound
 
 
 class XBehavior(x_fsm.XState):
@@ -20,13 +21,16 @@ class XBehavior(x_fsm.XState):
         pass
 
 
-class XActor(x_object.XAnimatedObject, x_fsm.XFiniteStateManager):
+class XActor(x_object.XAnimatedObject, x_fsm.XFiniteStateManager,
+             x_sound.XSoundMixin):
     __behaviors__ = None
     __default_behavior__ = None
+    __sounds__ = None
 
     def __init__(self, animations):
         super().__init__(animations)
-        self.sound = None
+        x_fsm.XFiniteStateManager.__init__(self)
+        x_sound.XSoundMixin.__init__(self)
 
     @property
     def behavior(self):
@@ -38,7 +42,6 @@ class XActor(x_object.XAnimatedObject, x_fsm.XFiniteStateManager):
         if self.state_name != behavior_name:
             self.state.done = True
             self.state.next = behavior_name
-            # self.flip_state()
 
     def setup_behaviors(self, behaviors, init_behavior):
         super().setup_states(behaviors, init_behavior)
@@ -57,10 +60,9 @@ class XActor(x_object.XAnimatedObject, x_fsm.XFiniteStateManager):
             self.state.enact(self, timedelta, world_state)
             self.animate(timedelta)
 
-    def make_sound(self, sounds, sound_name):
-        sound = sounds[sound_name]
-        if sound.get_num_channels() < 1:
-            self.sound = sound.play(fade_ms=100)
+    def play_sound(self, event, channel):
+        if channel.sound() is not self.sounds[event]:
+            channel.play(self.sounds[event])
 
 
 class XActorFactory:
@@ -78,4 +80,6 @@ class XActorFactory:
                                     type.__default_anim__)
         actor = type(man)
         actor.setup_behaviors(type.__behaviors__, type.__default_behavior__)
+        if type.__sounds__:
+            actor.setup_sounds(self.sounds, type.__sounds__)
         return actor

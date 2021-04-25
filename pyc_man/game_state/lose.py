@@ -1,5 +1,6 @@
 import pygame
 from pyc_man.actors import PacMan
+from pyc_man.behaviors import DyingPacMan
 from .running import RunningState
 from pyc_man.game_state.ready import ReadyState
 
@@ -26,19 +27,25 @@ class LoseState(ReadyState):
     def setup(self, **persist_values):
         pygame.time.wait(500)
         super().setup(**persist_values)
+        if self.title in self.ui:
+            self.ui.remove(self.title)
+        if self.subtitle in self.ui:
+            self.ui.remove(self.subtitle)
+
         for actor in self.actors:
             if isinstance(actor, PacMan):
                 self.pacman = actor
+                actor.change_behavior(PacMan.Behavior.DEAD)
+                actor.flip_state()
             else:
                 self.level.remove(actor)
 
     def update(self, timedelta):
-        self.level.update(timedelta, self.input, self)
-        if not self.pacman.animation.current().is_finished():
-            self.dirty = True
-
-    def draw(self, surface):
+        self.pacman.animate(timedelta)
         if self.pacman.animation.current().is_finished():
-            super().draw(surface)
-        else:
-            RunningState.draw(self, surface)
+            if self.title:
+                self.ui.add(self.title)
+            if self.subtitle:
+                self.ui.add(self.subtitle)
+
+        self.dirty = True

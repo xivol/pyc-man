@@ -1,6 +1,5 @@
 import pygame
 
-from pyc_man.behaviors import NormalPacMan, DyingPacMan, MovingPacMan, ChaseGhost, FrightGhost, DeadGhost
 from pyc_man.level import PycManLevel
 from pyc_man.objects import Fruits
 from pyc_man.actors import PacMan, Ghost
@@ -30,7 +29,7 @@ class InitState(XGameState):
         self.level = PycManLevel(map_file)
         self.sprites = XTMXSpriteFactory(sprites_file)
         self.animations = XAnimationFactory(self.sprites)
-        self.sounds = XSoundManager(sounds_dir)
+        self.sounds = XSoundManager(sounds_dir, {'music', 'pacman', 'effects'})
         self.producer = XActorFactory(self.sprites, self.animations, self.sounds)
         self.font = XBMPFont(font_file)
         self.setup()
@@ -67,6 +66,5 @@ class InitState(XGameState):
         self.score = 0
         self.current_bonus = 0
         self.pellets_count = 0
-
 
         self.done = True

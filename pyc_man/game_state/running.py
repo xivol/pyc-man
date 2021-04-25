@@ -1,6 +1,6 @@
 import pygame
 
-from pyc_man.behaviors import ConsumeHandler, ChaseGhost
+from pyc_man.behaviors import ConsumeHandler, ChaseGhost, DyingPacMan
 from pyc_man.objects import BonusMixin, Pellet, Energizer, Fruits
 from pyc_man.actors import PacMan, Ghost
 from x_game_state import XGameState
@@ -32,12 +32,14 @@ class RunningState(XGameState, ConsumeHandler):
         self.pellets_count = 0
         self.current_bonus = 0
         self.fruit = None
-        self.music = None
 
     def setup(self, **persist_values):
         super().setup(**persist_values)
         self.life_counter.set_value(self.actors[0].extra_lives)
         self.level_counter.set_value(self.current_bonus + 1)
+        for actor in self.actors:
+            if isinstance(actor, PacMan):
+                self.pacman = actor
         if self.__music_loop__:
             self.sounds.music.play(self.__music_loop__, loops=-1, fade_ms=100)
 
@@ -87,6 +89,9 @@ class RunningState(XGameState, ConsumeHandler):
         if isinstance(subject, PacMan) and isinstance(target, BonusMixin):
             self.add_score(target.points())
             self.level.remove(target)
+            if isinstance(target, Energizer):
+                self.done = True
+                self.next = "Fright"
             if isinstance(target, Pellet) or isinstance(target, Energizer):
                 self.add_pellet_count(1)
                 if self.level.pellets == 0:
@@ -95,11 +100,7 @@ class RunningState(XGameState, ConsumeHandler):
                     self.current_bonus += 1
                     if self.current_bonus == len(self.bonuses):
                         self.current_bonus = len(self.bonuses) - 1
-            if isinstance(target, Energizer):
-                self.done = True
-                self.next = "Fright"
         elif isinstance(subject, Ghost) and isinstance(target, PacMan):
-            target.change_behavior(target.Behavior.DEAD)
             self.done = True
             if target.extra_lives > 0:
                 self.next = "Lose"

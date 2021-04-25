@@ -1,12 +1,11 @@
+import pygame
 from enum import Enum
 
-import pygame
-import x_object
-from pyc_man import behaviors
 from x_actor import XActor
 from x_animation import Animation, StaticAnimation
 from x_input import Direction
-from pyc_man.objects import Wall, Gate, SpawnableMixin, BonusMixin
+from pyc_man import behaviors
+from pyc_man.objects import SpawnableMixin
 from pyc_man.directional_animator import DirectionalAnimationManager
 
 
@@ -18,7 +17,6 @@ class PMActor(XActor, SpawnableMixin):
         super().__init__(*params, **kwargs)
         self.direction = None
         self.makes_turn = False
-        self.sound = None
         self.set_direction(Direction.default())
 
     def set_direction(self, new_direction):
@@ -37,10 +35,6 @@ class PMActor(XActor, SpawnableMixin):
         hit_box = pygame.Rect(0, 0, self.rect.width // 2, self.rect.height // 2)
         hit_box.center = self.rect.center
         return hit_box
-
-    def on_despawn(self, level):
-        if self.sound:
-            self.sound.stop()
 
 
 class PacMan(PMActor):
@@ -63,7 +57,7 @@ class PacMan(PMActor):
         DEAD = 'dead'
 
     __behaviors__ = {
-        Behavior.ROUND: behaviors.NormalPacMan( 'init'),
+        Behavior.ROUND: behaviors.NormalPacMan('init'),
         Behavior.STILL: behaviors.NormalPacMan('normal'),
         Behavior.MOVE: behaviors.MovingPacMan(__speed__, 'moving'),
         Behavior.DEAD: behaviors.DyingPacMan('dead')
@@ -71,13 +65,15 @@ class PacMan(PMActor):
 
     __default_behavior__ = Behavior.ROUND
 
-    def __init__(self, sprite_factory, *params, **kwargs):
+    __sounds__ = {
+        behaviors.MovingPacMan.Sound.EAT_FRUIT: 'pacman_eat_fruit',
+        behaviors.MovingPacMan.Sound.EAT_GHOST: 'pacman_eat_ghost',
+        behaviors.MovingPacMan.Sound.EAT: 'pacman_eat_waka'
+    }
+
+    def __init__(self, *params, **kwargs):
+        super().__init__( *params, **kwargs)
         self.extra_lives = self.__start_lives__
-        super().__init__(sprite_factory, *params, **kwargs)
-        self.makes_turn = False
-        self.sound = None
-        self.direction = None
-        self.set_direction(Direction.default())
 
     @property
     def is_alive(self):
@@ -107,11 +103,13 @@ class Ghost(PMActor):
     class Behavior(Enum):
         CHASE = 'chase'
         FRIGHT = 'fright'
+        FLICKER = 'flicker'
         DEAD = 'dead'
 
     __behaviors__ = {
         Behavior.CHASE: behaviors.ChaseGhost(__speed__, 'normal'),
-        Behavior.FRIGHT: behaviors.FrightGhost(__speed__, 'frighten-normal', 'frighten-timeout'),
+        Behavior.FRIGHT: behaviors.FrightGhost(__speed__, 'frighten-normal'),
+        Behavior.FLICKER: behaviors.FlickerGhost(__speed__, 'frighten-timeout'),
         Behavior.DEAD: behaviors.DeadGhost(__speed__, 'dead')
     }
 
