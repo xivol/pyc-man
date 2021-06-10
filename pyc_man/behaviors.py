@@ -20,6 +20,7 @@ class Moving(x_actor.XBehavior):
 
     def enact(self, actor, timedelta, world):
         dist = int(self.speed * timedelta)
+
         if world.level.can_pass(actor, actor.direction.move(dist)):
             self.make_a_move(actor, dist, world.level)
         else:
@@ -32,7 +33,8 @@ class Moving(x_actor.XBehavior):
             world.on_did_consume(actor, target)
 
     def can_pass(self, object):
-        return not isinstance(object, Wall)
+        return not isinstance(object, Wall) and \
+               not isinstance(object, Gate)
 
     def can_eat(self, object):
         return False
@@ -74,10 +76,6 @@ class MovingPacMan(Moving):
             actor.change_behavior(actor.Behavior.STILL)
         else:
             actor.set_direction(input.direction)
-
-    def can_pass(self, object):
-        return not isinstance(object, Wall) and \
-               not isinstance(object, Gate)
 
     def can_eat(self, object):
         return isinstance(object, BonusMixin) or \
@@ -123,8 +121,16 @@ class FrightGhost(Moving):
         super().enter(actor)
         actor.set_direction(Direction.opposite(actor.direction))
 
+
 class FlickerGhost(FrightGhost):
     pass
 
+
 class DeadGhost(Moving):
-    pass
+    def can_pass(self, object):
+        return not isinstance(object, Wall)
+
+
+class PennedGhost(Moving):
+    def can_pass(self, object):
+        return not isinstance(object, Wall)

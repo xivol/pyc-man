@@ -4,6 +4,10 @@ from pyc_man.blinking_animator import BlinkingAnimator
 from x_object import XStaticObject, XAnimatedObject
 
 
+class NavPoint(XStaticObject):
+    pass
+
+
 class Wall(XStaticObject):
     pass
 
