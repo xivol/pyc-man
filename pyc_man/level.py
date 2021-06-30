@@ -2,7 +2,7 @@ import pygame
 from itertools import product
 
 from pyc_man.actors import Ghost
-from pyc_man.objects import Wall, Pellet, Energizer, Gate, BonusMixin, SpawnableMixin
+from pyc_man.objects import Wall, Pellet, Energizer, Gate, NavPoint, SpawnableMixin
 from x_level import XTiledLevel
 from x_object import XStaticObject
 from tiled_renderer import TiledRenderer
@@ -17,6 +17,11 @@ class PycManLevel(XTiledLevel):
         'pellet': Pellet,
         'power_pellet': Energizer,
         'gate': Gate
+    }
+
+    __nav_types__ = {
+        'turn': NavPoint,
+        'golden_turn': NavPoint,
     }
 
     def __init__(self, filename):
@@ -46,26 +51,26 @@ class PycManLevel(XTiledLevel):
 
     def setup_sprites(self, sprite_factory):
         p = product(range(self.data.width), range(self.data.height))
-        coll_gids = set(self.colliders.data[y][x] for x, y in p)
-
-        self.collider_sprites = pygame.sprite.Group()
         groups = {}
+
+        coll_gids = set(self.colliders.data[y][x] for x, y in p)
+        self.collider_sprites = pygame.sprite.Group()
         for gid in coll_gids:
             try:
                 props = self.data.tile_properties[gid]
-                groups[props['type']] = group = pygame.sprite.Group()
-                type = self.__collider_types__[props['type']]
             except KeyError:
                 continue
-            self.create_sprites(type, group,
-                                sprite_factory, type.sprite_name(),
-                                props['type'], self.colliders)
-
-            self.collider_sprites.add(*group.sprites())
+            groups[props['type']] = group = pygame.sprite.Group()
+            type = self.__collider_types__.get(props['type'], None)
+            if type:
+                self.create_sprites(type, group,
+                                    sprite_factory, type.sprite_name(),
+                                    props['type'], self.colliders)
+                self.collider_sprites.add(*group.sprites())
 
         self.display_sprites = pygame.sprite.Group()
         for g in map(lambda x: groups[x[0]],
-                     filter(lambda x: issubclass(x[1], BonusMixin),
+                     filter(lambda x: not not x[1].sprite_name(),
                             self.__collider_types__.items())):
             self.display_sprites.add(*g.sprites())
 
@@ -124,6 +129,10 @@ class PycManLevel(XTiledLevel):
         self.display_sprites.update(timedelta, *params)
         if self.is_blinking:
             self.blink(timedelta)
+
+    def show_gates(self, is_shown):
+        if is_shown:
+            pass
 
     def blink(self, timedelta):
         if not self.is_blinking:

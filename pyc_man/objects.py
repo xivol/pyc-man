@@ -4,12 +4,21 @@ from pyc_man.blinking_animator import BlinkingAnimator
 from x_object import XStaticObject, XAnimatedObject
 
 
+class NavPoint(XStaticObject):
+    pass
+
+
 class Wall(XStaticObject):
     pass
 
 
 class Gate(XStaticObject):
-    pass
+    __sprite_name__ = 'gate'
+
+    def get_hit_box(self):
+        hit_box = pygame.Rect(0, 0, self.rect.width // 3, self.rect.height // 3)
+        hit_box.center = self.rect.center
+        return hit_box
 
 
 class BonusMixin:
