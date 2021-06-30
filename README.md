@@ -1,17 +1,17 @@
 # pyc-man
 Pygame PAC MAN
 
-Simple [PAC-MAN](https://en.wikipedia.org/wiki/Pac-Man) clone.
+Simple [PAC-MAN](https://www.gamasutra.com/view/feature/3938/the_pacman_dossier.php?print=1) clone.
  - Use arrows to move.
  - Eat Energizers to scare ghosts.
- - Game speeds up with each level.
+ - Ghosts speed up with each level.
   - Dumb AI, only Blinky :(
   
 Элементарный клон игры [PAC-MAN](https://ru.wikipedia.org/wiki/Pac-Man)
  - Используйте стрелки для управления.
  - Съешьте большие точки чтобы напугать призрака.
- - Игра ускоряется с каждой победой.
- - Нет ИИ, только один призрак :(  
+ - Противники ускоряются с каждой победой.
+ - Простой ИИ, только один призрак :(  
 
 ### Информация для проверяющих
 В приложении используются файлы формата Tiled(xml) для создания и загрузки уровня.
@@ -30,7 +30,7 @@ BMPFont - загружает из файла шрифт и позволяет р
 
 __TODO:__
  - отловить проблему при переключении звука (иногда пропадает один из каналов);
- - добавить логику в поведение призрака; 
+ - добавить логику при смерти призрака; 
  - добавить остальных призраков;
  - реализовать состояние игры Scatter;
  - добавить изменение скорости движения в процесее игры;

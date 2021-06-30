@@ -2,7 +2,7 @@ import pygame
 from itertools import product
 
 from pyc_man.actors import Ghost
-from pyc_man.objects import Wall, Pellet, Energizer, Gate, NavPoint, SpawnableMixin
+from pyc_man.objects import Wall, Pellet, Energizer, Gate, SpawnableMixin
 from x_level import XTiledLevel
 from x_object import XStaticObject
 from tiled_renderer import TiledRenderer
@@ -17,11 +17,6 @@ class PycManLevel(XTiledLevel):
         'pellet': Pellet,
         'power_pellet': Energizer,
         'gate': Gate
-    }
-
-    __nav_types__ = {
-        'turn': NavPoint,
-        'golden_turn': NavPoint,
     }
 
     def __init__(self, filename):
