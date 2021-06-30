@@ -1,3 +1,5 @@
+import math
+
 
 class XTiledLevel:
     __colliders_layer__ = 'collider'
@@ -31,3 +33,10 @@ class XTiledLevel:
         for x, y, gid in [i for i in layer.iter_data() if i[2] == gid]:
             pos = (tw * x + tw // 2, th * y + th // 2)
             obj = sprite_factory[sprite_name].make(type, pos, group)
+
+    def distance(self, from_point, to_point):
+        x1 = from_point[0]
+        y1 = from_point[1]
+        x2 = to_point[0]
+        y2 = to_point[1]
+        return math.hypot(x1 - x2, y1 - y2)

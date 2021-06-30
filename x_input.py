@@ -29,6 +29,35 @@ class Direction(enum.Enum):
     def random():
         return random.choice(Direction.all())
 
+    @staticmethod
+    def calc(from_point, to_point):
+        if from_point == to_point:
+            raise ValueError(from_point, to_point)
+
+        dx = to_point[0] - from_point[0]
+        dy = to_point[1] - from_point[1]
+        if abs(dx) > abs(dy):
+            if dx < 0:
+                return Direction.LEFT
+            else:
+                return Direction.RIGHT
+        elif abs(dx) < abs(dy):
+            if dy < 0:
+                return Direction.DOWN
+            else:
+                return Direction.UP
+        else:
+            if dy < 0:
+                if dx < 0:
+                    return random.choice([Direction.DOWN, Direction.LEFT])
+                else:
+                    return random.choice([Direction.DOWN, Direction.RIGHT])
+            else:
+                if dx < 0:
+                    return random.choice([Direction.UP, Direction.LEFT])
+                else:
+                    return random.choice([Direction.UP, Direction.RIGHT])
+
     def move(self, delta):
         return self.move_point((0, 0), delta)
 

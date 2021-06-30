@@ -96,6 +96,13 @@ class PycManLevel(XTiledLevel):
         actor.rect = old_rect
         return actor.behavior.can_pass(collider)
 
+    def at_crossing(self, actor):
+        pos = actor.rect.center
+        y = pos[1] // self.tile_height
+        x = pos[0] // self.tile_width
+        print(self.navigation.data[y][x])
+        return self.navigation.data[y][x] != 0
+
     def get_hit(self, actor):
         return actor.get_hit(self.collider_sprites)
 

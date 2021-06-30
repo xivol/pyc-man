@@ -2,6 +2,7 @@ from abc import abstractmethod
 from enum import Enum
 
 import x_actor
+from pyc_man.target_provider import TargetProvider
 from x_input import Direction
 from pyc_man.objects import Wall, Gate, BonusMixin, Fruits
 from x_sound import XSoundMixin
@@ -32,7 +33,8 @@ class Moving(x_actor.XBehavior):
             world.on_did_consume(actor, target)
 
     def can_pass(self, object):
-        return not isinstance(object, Wall)
+        return not isinstance(object, Wall) and \
+               not isinstance(object, Gate)
 
     def can_eat(self, object):
         return False
@@ -105,26 +107,61 @@ class MovingPacMan(Moving):
         actor.stop_sound(sounds.pacman)
 
 
-class ChaseGhost(Moving):
-    def dont_make_a_move(self, actor, world):
-        actor.set_direction(Direction.random())
+class MovingGhost(Moving):
+    __dist__ = min
+    def __init__(self, speed, animation, persists=set()):
+        super().__init__(speed, animation, persists=persists | {'target_prov'})
+        self.target_prov = TargetProvider()
 
+    def handle_input(self, actor, timedelta, input, world):
+        if world.level.at_crossing(actor):
+            actor.set_direction(self.find_direction(actor, world))
+
+    def dont_make_a_move(self, actor, world):
+        actor.set_direction(self.find_direction(actor, world))
+
+    def find_direction(self, actor, world):
+        if self.target_prov is None:
+            return Direction.random()
+
+        step = world.level.tile_width
+        possible_dirs = Direction.all()
+        possible_dirs.remove(Direction.opposite(actor.direction))
+        possible_dirs = list(filter(lambda d:
+                                    world.level.can_pass(actor, d.move(step)),
+                                    possible_dirs))
+        if len(possible_dirs) == 0:
+            return actor.direction
+
+        pos = actor.rect.center
+        target = self.target_prov.get_target(world)
+
+        dist_to_target = [world.level.distance(target,
+                                               d.move_point(pos, step))
+                          for d in possible_dirs]
+        index, _ = self.__dist__(enumerate(dist_to_target), key=lambda p: p[1])
+
+        return possible_dirs[index]
+
+
+class ChaseGhost(MovingGhost):
     def can_eat(self, object):
         return isinstance(object, x_actor.XActor) and \
                (isinstance(object.behavior, NormalPacMan) or \
                 isinstance(object.behavior, MovingPacMan))
 
 
-class FrightGhost(Moving):
-    def dont_make_a_move(self, actor, world):
-        actor.set_direction(Direction.random())
+class FrightGhost(MovingGhost):
+    __dist__ = max
 
     def enter(self, actor):
         super().enter(actor)
         actor.set_direction(Direction.opposite(actor.direction))
 
+
 class FlickerGhost(FrightGhost):
     pass
 
-class DeadGhost(Moving):
+
+class DeadGhost(MovingGhost):
     pass
