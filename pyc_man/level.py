@@ -100,7 +100,7 @@ class PycManLevel(XTiledLevel):
         pos = actor.rect.center
         y = pos[1] // self.tile_height
         x = pos[0] // self.tile_width
-        print(self.navigation.data[y][x])
+        # print(self.navigation.data[y][x])
         return self.navigation.data[y][x] != 0
 
     def get_hit(self, actor):
@@ -108,7 +108,6 @@ class PycManLevel(XTiledLevel):
 
     def remove(self, object):
         self.collider_sprites.remove(object)
-        #if isinstance(object, BonusMixin):
         self.display_sprites.remove(object)
         if isinstance(object, SpawnableMixin):
             object.on_despawn(self)

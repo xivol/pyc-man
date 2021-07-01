@@ -1,6 +1,7 @@
 import math
 
 
+
 def dimensions(w, h):
     f = math.gcd(w, h)
     if w // f != 7 or h // f != 9:
@@ -12,6 +13,7 @@ def dimensions(w, h):
 
 
 if __name__ == '__main__':
+    import sys
     import os.path
     import logging
     import pygame
@@ -19,6 +21,9 @@ if __name__ == '__main__':
     from pyc_man.game_state import InitState, WinState, LoseState, ReadyState
     from pyc_man.game_state import ChaseState, FrightState
     from x_game import XGame
+
+    if getattr(sys, 'frozen', False):
+        os.chdir(sys._MEIPASS)
 
     logging.basicConfig(level=logging.DEBUG)
 

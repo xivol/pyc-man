@@ -3,5 +3,5 @@ from. import actors
 
 class TargetProvider:
     def get_target(self, world):
-        pacman = next(filter(lambda a: isinstance(a, actors.PacMan), world.actors))
+        pacman = world.pacman
         return pacman.rect.center

@@ -110,7 +110,7 @@ class MovingPacMan(Moving):
 class MovingGhost(Moving):
     __dist__ = min
     def __init__(self, speed, animation, persists=set()):
-        super().__init__(speed, animation, persists=persists | {'target_prov'})
+        super().__init__(speed, animation, persists=persists)
         self.target_prov = TargetProvider()
 
     def handle_input(self, actor, timedelta, input, world):
@@ -118,13 +118,14 @@ class MovingGhost(Moving):
             actor.set_direction(self.find_direction(actor, world))
 
     def dont_make_a_move(self, actor, world):
+        print( world.level.can_pass(actor, actor.direction.move(8)))
         actor.set_direction(self.find_direction(actor, world))
 
     def find_direction(self, actor, world):
         if self.target_prov is None:
             return Direction.random()
 
-        step = world.level.tile_width
+        step = world.level.tile_width // 2
         possible_dirs = Direction.all()
         possible_dirs.remove(Direction.opposite(actor.direction))
         possible_dirs = list(filter(lambda d:
