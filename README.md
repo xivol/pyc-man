@@ -5,8 +5,12 @@ Simple [PAC-MAN](https://www.gamasutra.com/view/feature/3938/the_pacman_dossier.
  - Use arrows to move.
  - Eat Energizers to scare ghosts.
  - Ghosts speed up with each level.
-  - Dumb AI, only Blinky :(
-  
+ - Dumb AI, only Blinky :(
+
+__Sources:__
+Phaser pacman [assets](http://labs.phaser.io/assets/games/pacman/)
+Gamasutra [article](https://www.gamasutra.com/view/feature/3938/the_pacman_dossier.php?print=1) on intricate details of pacman that are mostly irrelevant to this build.
+ 
 Элементарный клон игры [PAC-MAN](https://ru.wikipedia.org/wiki/Pac-Man)
  - Используйте стрелки для управления.
  - Съешьте большие точки чтобы напугать призрака.
@@ -36,7 +40,4 @@ __TODO:__
  - добавить изменение скорости движения в процесее игры;
  - оформить код в модуль;
  - вынести константы в файл конфигурации, избавившись от статических зависимостей.
-
- 
- 
 
