@@ -1,7 +1,7 @@
 # pyc-man
 Pygame PAC MAN
 
-Simple [PAC-MAN](https://www.gamasutra.com/view/feature/3938/the_pacman_dossier.php?print=1) clone.
+Simple [PAC-MAN](https://en.wikipedia.org/wiki/Pac-Man) clone.
  - Use arrows to move.
  - Eat Energizers to scare ghosts.
  - Ghosts speed up with each level.
