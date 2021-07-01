@@ -28,7 +28,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
     try:
-        game = XGame('Pyc-Man', dimensions(600, 800))
+        game = XGame('Pyc-Man', dimensions(600, 800), os.path.join('data', 'img', 'pacman_icon_title.ico'))
         game_states = {"Init": InitState(os.path.join('data', 'level_01.tmx'),
                                          os.path.join('data', 'sprites.tmx'),
                                          os.path.join('data', 'font.tmx'),
