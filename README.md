@@ -8,8 +8,8 @@ Simple [PAC-MAN](https://www.gamasutra.com/view/feature/3938/the_pacman_dossier.
  - Dumb AI, only Blinky :(
 
 __Sources:__
-Phaser pacman [assets](http://labs.phaser.io/assets/games/pacman/)
-Gamasutra [article](https://www.gamasutra.com/view/feature/3938/the_pacman_dossier.php?print=1) on intricate details of pacman that are mostly irrelevant to this build.
+- Phaser spriteshhets for pacman [assets](http://labs.phaser.io/assets/games/pacman/).
+- Gamasutra [article](https://www.gamasutra.com/view/feature/3938/the_pacman_dossier.php?print=1) on intricate details of pacman that are mostly irrelevant to this build.
  
 Элементарный клон игры [PAC-MAN](https://ru.wikipedia.org/wiki/Pac-Man)
  - Используйте стрелки для управления.
